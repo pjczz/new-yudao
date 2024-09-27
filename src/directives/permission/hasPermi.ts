@@ -12,7 +12,10 @@ export function hasPermi(app: App<Element>) {
 
     if (value && value instanceof Array && value.length > 0) {
       const permissionFlag = value
-
+      // 判断逻辑，输入的是一个权限字符串数组，便利账号里的权限，如果存在一个权限与输入的权限数组中的一个权限相同，则有权限
+      // 也就是说 输入的权限数组是只要存在一个权限存在，就可以通过，代表的是或
+      // 优化方法一 统计法，统计最终true的个数是否等于输入列表
+      // 优化方法二
       const hasPermissions = permissions.some((permission: string) => {
         return all_permission === permission || permissionFlag.includes(permission)
       })
