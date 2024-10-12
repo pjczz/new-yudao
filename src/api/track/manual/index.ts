@@ -20,12 +20,12 @@ export interface trackResponse extends trackParams {
   id: string | null
 }
 
-// 普通埋点
-export const sendTracking = async (data: trackParams) => {
-  return await request.post({ url: '/track', data })
+// 批量埋点
+export const sendTracking = async (data: trackParams[]) => {
+  return await request.post({ url: '/stat_data_adapter_war_exploded/log/reportOperationLog', data })
 }
 
-// 批量埋点
-export const sendTrackingMuti = async (data: trackParams[]) => {
-  return await request.post({ url: '/system/area/get-by-ip?ip=', data })
-}
+// // 批量埋点
+// export const sendTrackingMuti = async (data: trackParams[]) => {
+//   return await request.post({ url: '/system/area/get-by-ip?ip=', data })
+// }

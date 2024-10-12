@@ -36,7 +36,7 @@ const whiteList: string[] = ['/login', '/refresh-token']
 
 // 创建axios实例
 const service: AxiosInstance = axios.create({
-  baseURL: base_url, // api 的 base_url
+  // baseURL: base_url, // api 的 base_url
   timeout: request_timeout, // 请求超时时间
   withCredentials: false // 禁用 Cookie 等信息
 })
@@ -44,6 +44,7 @@ const service: AxiosInstance = axios.create({
 // request拦截器
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    console.log(config.data,'config.data')
     config.headers._t = getSignature(config.data).timestamp
     config.headers._s = getSignature(config.data).signature
     // 是否需要设置 token
@@ -79,6 +80,7 @@ service.interceptors.request.use(
         config.url = config.url + '?' + paramsStr
       }
     }
+    config.url = config.url == '/stat_data_adapter_war_exploded/log/reportOperationLog' ? '/abs' + config.url : base_url + config.url
     return config
   },
   (error: AxiosError) => {

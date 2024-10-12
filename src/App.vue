@@ -4,7 +4,9 @@ import { useAppStore } from '@/store/modules/app'
 import { useDesign } from '@/hooks/web/useDesign'
 import { CACHE_KEY, useCache } from '@/hooks/web/useCache'
 import routerSearch from '@/components/RouterSearch/index.vue'
-
+import { onBeforeUnmount } from 'vue'
+import {useUserStore} from '@/store/modules/user'
+import { getSignature } from '@/utils/index'
 defineOptions({ name: 'APP' })
 
 const { getPrefixCls } = useDesign()
@@ -23,7 +25,13 @@ const setDefaultTheme = () => {
   appStore.setIsDark(isDarkTheme)
 }
 setDefaultTheme()
-console.log(window.location.pathname)
+console.log(getSignature([{"project":"gx","system":"user_mp","module":"","sub_modules":"[]","tenantId":45544,"uid":null,"type":1,"startTime":"2024-10-12 17:46:02","endTime":"2024-10-12 17:49:10","eventName":"用户离开页面","eventRes":"success","url":"/system/role","params":"{\"params\":{},\"data\":{}}","remarks":""}]))
+onBeforeUnmount(() => {
+  // app销毁时清除所有请求
+  const userStoreTrack = useUserStore()
+  const useTrack = userStoreTrack.getUseTrackIntance
+  useTrack.clearAllRequests()
+})
 
 </script>
 <template>
