@@ -37,6 +37,11 @@ import App from './App.vue'
 
 import './permission'
 
+import trackMixin from '@/mixins/trackMixin'
+import { sendTracking } from './api/track/manual'
+
+
+
 import '@/plugins/tongji' // 百度统计
 import Logger from '@/utils/Logger'
 
@@ -61,6 +66,7 @@ const setupAll = async () => {
   setupAuth(app)
 
   await router.isReady()
+  // app.mixin(trackMixin);
 
   app.use(VueDOMPurifyHTML)
 

@@ -8,10 +8,13 @@ import { usePageLoading } from '@/hooks/web/usePageLoading'
 import { useDictStoreWithOut } from '@/store/modules/dict'
 import { useUserStoreWithOut } from '@/store/modules/user'
 import { usePermissionStoreWithOut } from '@/store/modules/permission'
+import { useUserStore } from '@/store/modules/user'
 
 const { start, done } = useNProgress()
 
 const { loadStart, loadDone } = usePageLoading()
+
+const startTime = new Date()
 
 const parseURL = (
   url: string | null | undefined
@@ -60,6 +63,30 @@ const whiteList = [
 router.beforeEach(async (to, from, next) => {
   start()
   loadStart()
+  if (to.path != '/') {
+    const userStoreTrack = useUserStore()
+    const useTrack = userStoreTrack.getUseTrackIntance
+    useTrack.setParams({
+      uid: '1231',
+      type: 3,
+      url: to.path,
+      startTime,
+      endTime: startTime,
+      module: '',
+      sub_modules: '[]',
+      tenantId: 45544,
+      eventName: '用户访问页面',
+      eventRes: 'success',
+      params:JSON.stringify( {
+        params: {},
+        data: {}
+      }),
+      remarks: ''
+    })
+    useTrack.sendRequest()
+    console.log('页面跳转埋点数据:', startTime, from, to)
+  }
+
   if (getAccessToken()) {
     if (to.path === '/login') {
       next({ path: '/' })
@@ -101,6 +128,7 @@ router.beforeEach(async (to, from, next) => {
 
 router.afterEach((to) => {
   useTitle(to?.meta?.title as string)
+  console.log('页面跳转埋点数据2:', startTime, new Date(),to);
   done() // 结束Progress
   loadDone()
 })

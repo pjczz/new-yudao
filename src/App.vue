@@ -23,6 +23,8 @@ const setDefaultTheme = () => {
   appStore.setIsDark(isDarkTheme)
 }
 setDefaultTheme()
+console.log(window.location.pathname)
+
 </script>
 <template>
   <ConfigGlobal :size="currentSize">

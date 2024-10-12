@@ -1,4 +1,5 @@
 import { toNumber } from 'lodash-es'
+import SHA256 from 'crypto-js/sha256'
 
 /**
  *
@@ -449,3 +450,20 @@ export function jsonParse(str: string) {
     return ''
   }
 }
+export function getSignature(data) {
+  // 获取当前时间戳
+  const timestamp = new Date().getTime()
+  // 示例密钥（实际应用中应安全存储）
+  const hmacKey = import.meta.env.VITE_SIGNATURE_KEY // HMAC 密钥
+
+  // 构建需要签名的字符串（加密数据 + 时间戳）
+  const dataToSign = JSON.stringify(data) + '_t=' + timestamp + hmacKey
+  const signature = SHA256(dataToSign).toString()
+
+  const headers = {
+    timestamp,
+    signature
+  }
+  return headers
+}
+

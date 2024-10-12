@@ -26,6 +26,9 @@ interface ImportMetaEnv {
   readonly VITE_DROP_CONSOLE: string
   readonly VITE_SOURCEMAP: string
   readonly VITE_OUT_DIR: string
+  readonly VITE_TRACK_PROJECT: string
+  readonly VITE_TRACK_SYSTEM: string
+  readonly VITE_SIGNATURE_KEY: string
 }
 
 declare global {

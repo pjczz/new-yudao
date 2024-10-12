@@ -141,5 +141,6 @@
     "package.json": "pnpm-lock.yaml,yarn.lock,LICENSE,README*,CHANGELOG*,CNAME,.gitattributes,.eslintrc-auto-import.json,.gitignore,prettier.config.js,stylelint.config.js,commitlint.config.js,.stylelintignore,.prettierignore,.gitpod.yml,.eslintrc.js,.eslintignore"
   },
   "terminal.integrated.scrollback": 10000,
-  "nuxt.isNuxtApp": false
+  "nuxt.isNuxtApp": false,
+  "Codegeex.RepoIndex": true
 }
