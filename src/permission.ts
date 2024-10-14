@@ -70,7 +70,7 @@ router.beforeEach(async (to, from, next) => {
     useTrack.setParams({
       uid: 323,
       type: 1,
-      url: to.path,
+      // url: to.path,
       startTime,
       endTime,
       module: '',

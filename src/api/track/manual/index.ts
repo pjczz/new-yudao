@@ -22,7 +22,8 @@ export interface trackResponse extends trackParams {
 
 // 批量埋点
 export const sendTracking = async (data: trackParams[]) => {
-  return await request.post({ url: '/stat_data_adapter_war_exploded/log/reportOperationLog', data })
+  // isRaw代表返回原始数据
+  return await request.post({ url: '/stat_data_adapter_war_exploded/log/reportOperationLog', data , isRaw:true})
 }
 
 // // 批量埋点

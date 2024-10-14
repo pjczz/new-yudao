@@ -1,10 +1,13 @@
 import { trackParams } from '../api/track/manual/index'
+interface trackMutiParams extends trackParams {
+  retry: number
+}
 
 // tracking.js
 export class useTrack {
   // 设计异步批量请求埋点
-  private requestList: trackParams[] = []
-  private params: trackParams = {
+  private requestList: trackMutiParams[] = []
+  private params: trackMutiParams = {
     project: import.meta.env.VITE_TRACK_PROJECT,
     system: import.meta.env.VITE_TRACK_SYSTEM,
     module: '',
@@ -18,12 +21,11 @@ export class useTrack {
     eventRes: '',
     url: '',
     params: '',
-    remarks: ''
+    remarks: '',
+    retry: 1
   }
-  private queryString: string = ''
   private request: Function = function () {}
   constructor(request) {
-    this.queryString = ''
     this.request = request
     this._setTimerToSendRequest()
   }
@@ -46,37 +48,70 @@ export class useTrack {
       // 变量赋值
       Object.keys(params).forEach((item) => {
         if (item != 'uid') this.params[item] = params[item]
-        if(item == 'startTime' || item == 'endTime'){
+        if (item == 'startTime' || item == 'endTime') {
           this.params[item] = this._formatDate(params[item])
         }
       })
-      if(params.type == 1 && params.endTime.getTime() - params.startTime.getTime()<5000){
+      if (params.type == 1 && params.endTime.getTime() - params.startTime.getTime() < 5000) {
         return
       }
       this.requestList.push(this.params)
     }
   }
-  // 将参数对象转换为查询字符串
-  _getQueryString = () => {
-    this.queryString = Object.keys(this.params)
-      .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(this.params[key])}`)
-      .join('&')
-  }
   // 发送请求
+  /**
+   * 每次请求之前都先删除重试过多的接口 保证每个埋点最多重试3次
+   * @returns
+   */
   sendRequest = () => {
+    // 删除重试次数大于3次的埋点数据
+    this._deleteParam()
     // 未空则不执行
     if (!this.requestList || !this.requestList.length) return
-    // this._getQueryString()
-    // 执行所有存起来的请求
-    this.request(this.requestList).then(()=>{
-      this.requestList = []
-    }).catch(err=>{
-      this.requestList = []
+    const requestTempList:trackParams[] = []
+    
+    this.requestList.forEach((item) => {
+      const obj = {}
+      Object.keys(item).forEach((key) => {
+        if (key != 'retry') obj[key] = item[key]
+      })
+      requestTempList.push(obj as trackParams)
     })
+
+    // 执行所有存起来的请求
+    this.request(this.requestList)
+      .then((res) => {
+        console.log(res)
+        if(res.ret){
+          this.requestList = []
+        }
+        else{
+          this._recordRetry()
+        }
+
+      })
+      .catch((err) => {
+        this._recordRetry()
+      })
     // uni.request({
     // 	url: this.url + "?" + this.queryString,
     // })
   }
+  // 处理发送失败的数据
+  _recordRetry(){
+    this.requestList.forEach((item) => {
+      item.retry++
+    })
+  }
+  // 删除重试次数大于3次的埋点数据
+  _deleteParam() {
+    this.requestList.forEach((item: trackMutiParams, index: number) => {
+      if (item.retry > 3) {
+        this.requestList.splice(index, 1)
+      }
+    })
+  }
+  _getRetryParam() {}
   // 获取当前路由
   _getRoute() {
     const flag = this._isWebEnvironment()
@@ -100,52 +135,53 @@ export class useTrack {
     this.sendRequest()
     this.requestList = []
   }
+  // 放入工具函数
   _formatDate(date) {
     // 获取完整年份
-    const year = date.getFullYear();
-  
+    const year = date.getFullYear()
+
     // 获取月份（月份需要 +1，因为 getMonth() 返回 0-11）
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-  
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+
     // 获取日期
-    const day = String(date.getDate()).padStart(2, '0');
-  
+    const day = String(date.getDate()).padStart(2, '0')
+
     // 获取小时
-    const hours = String(date.getHours()).padStart(2, '0');
-  
+    const hours = String(date.getHours()).padStart(2, '0')
+
     // 获取分钟
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-  
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+
     // 获取秒数
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-  
+    const seconds = String(date.getSeconds()).padStart(2, '0')
+
     // 拼接成 yyyy-MM-dd HH:mm:ss 格式
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
   }
-  // 到时候放utils
-  _deepClone(obj):trackParams {
+  // 放入工具函数
+  _deepClone<T>(obj: T): T {
     if (obj === null || typeof obj !== 'object') {
       return obj // 处理原始类型或 null
     }
-    
+
     // 处理日期
-    // if (obj instanceof Date) {
-    //   return new Date(obj)
-    // }
+    if (obj instanceof Date) {
+      return new Date(obj)
+    }
 
     // // 处理正则表达式
-    // if (obj instanceof RegExp) {
-    //   return new RegExp(obj)
-    // }
+    if (obj instanceof RegExp) {
+      return new RegExp(obj)
+    }
 
     // // 处理数组
-    // if (Array.isArray(obj)) {
-    //   const arrCopy: Array<any> = []
-    //   for (let i = 0; i < obj.length; i++) {
-    //     arrCopy[i] = this._deepClone(obj[i])
-    //   }
-    //   return arrCopy
-    // }
+    if (Array.isArray(obj)) {
+      const arrCopy: Array<any> = []
+      for (let i = 0; i < obj.length; i++) {
+        arrCopy[i] = this._deepClone(obj[i])
+      }
+      return arrCopy
+    }
 
     // 处理普通对象
     const objCopy = {}
@@ -155,6 +191,6 @@ export class useTrack {
       }
     }
 
-    return objCopy as trackParams
+    return objCopy
   }
 }

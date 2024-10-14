@@ -455,15 +455,15 @@ export function getSignature(data) {
   const timestamp = 1728726553257
   // 示例密钥（实际应用中应安全存储）
   const hmacKey = import.meta.env.VITE_SIGNATURE_KEY // HMAC 密钥
-
+  const dataStr = data ? JSON.stringify(data) : ''
   // 构建需要签名的字符串（加密数据 + 时间戳）
-  const dataToSign = JSON.stringify(data) + '_t=' + timestamp + hmacKey
+  const dataToSign = dataStr + '_t=' + timestamp + hmacKey
   console.log(dataToSign,'dataToSign')
   const signature = SHA256(dataToSign).toString()
 
   const headers = {
-    timestamp,
-    signature
+    _t:timestamp,
+    _s:signature
   }
   return headers
 }

@@ -18,6 +18,9 @@ import { deleteUserCache } from '@/hooks/web/useCache'
 
 const tenantEnable = import.meta.env.VITE_APP_TENANT_ENABLE
 const { result_code, base_url, request_timeout } = config
+interface InternalAxiosRequestConfigWithRaw extends InternalAxiosRequestConfig {
+  isRaw?:boolean
+}
 
 // 需要忽略的提示。忽略后，自动 Promise.reject('error')
 const ignoreMsgs = [
@@ -43,10 +46,11 @@ const service: AxiosInstance = axios.create({
 
 // request拦截器
 service.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    console.log(config.data,'config.data')
-    config.headers._t = getSignature(config.data).timestamp
-    config.headers._s = getSignature(config.data).signature
+  (config: InternalAxiosRequestConfigWithRaw) => {
+    // 获取时间戳和签名
+    const { _t, _s } = getSignature(config.data)
+    config.headers._t = _t
+    config.headers._s = _s
     // 是否需要设置 token
     let isToken = (config!.headers || {}).isToken === false
     whiteList.some((v) => {
@@ -80,7 +84,10 @@ service.interceptors.request.use(
         config.url = config.url + '?' + paramsStr
       }
     }
-    config.url = config.url == '/stat_data_adapter_war_exploded/log/reportOperationLog' ? '/abs' + config.url : base_url + config.url
+    config.url =
+      config.url == '/stat_data_adapter_war_exploded/log/reportOperationLog'
+        ? '/abs' + config.url
+        : base_url + config.url
     return config
   },
   (error: AxiosError) => {
@@ -93,8 +100,9 @@ service.interceptors.request.use(
 // response 拦截器
 service.interceptors.response.use(
   async (response: AxiosResponse<any>) => {
+    console.log(response,'response')
     let { data } = response
-    const config = response.config
+    const config:InternalAxiosRequestConfigWithRaw = response.config
     if (!data) {
       // 返回“[HTTP]请求没有返回值”;
       throw new Error()
@@ -184,7 +192,10 @@ service.interceptors.response.use(
         ElNotification.error({ title: msg })
       }
       return Promise.reject('error')
-    } else {
+    } else if (config.isRaw) {
+      return response
+    }
+    else{
       return data
     }
   },
