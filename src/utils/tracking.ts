@@ -26,7 +26,7 @@ export class useTrack {
     url: '',
     params: '',
     remarks: '',
-    retry: 1
+    retry: 0
   }
   private params: trackMutiParams = Object.assign({}, this.INITPARAMS)
   // 在请求期间触发的埋点，需要等待请求结束再发送
@@ -146,12 +146,14 @@ export class useTrack {
           this._increaseParamsRetry()
           this.isRequesting = false
           this.requestList.push(...this.waitList)
+          this.waitList=[]
         }
       })
       .catch((err) => {
         this._increaseParamsRetry()
         this.isRequesting = false
         this.requestList.push(...this.waitList)
+        this.waitList=[]
       })
     // uni.request({
     // 	url: this.url + "?" + this.queryString,
@@ -169,8 +171,8 @@ export class useTrack {
     this.requestList = this.requestList.filter((item: trackMutiParams, index: number) => {
       return item.retry <= 3
     })
+    console.log(this.requestList,'abs,requestList')
   }
-  _getRetryParam() {}
   // 获取当前路由
   _getRoute() {
     const flag = this._isWebEnvironment()
@@ -186,7 +188,7 @@ export class useTrack {
   }
   _setTimerToSendRequest() {
     setInterval(() => {
-      if (this.requestList.length > 0) {
+      if (this.requestList.length > 0 && !this.isRequesting) {
         this.sendRequest()
       }
     }, 5000) // 5秒发送一次请求
