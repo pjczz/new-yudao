@@ -4,8 +4,7 @@ import {
   trackClickParams,
   trackErrorParams,
   trackStayParams,
-  trackInputParams
-} from '@/types/tracking'
+} from './trackingType'
 
 // tracking.js 最好在获取uid或获取token的地方做初始化和刷新操作
 export class useTrack {
@@ -146,14 +145,14 @@ export class useTrack {
           this._increaseParamsRetry()
           this.isRequesting = false
           this.requestList.push(...this.waitList)
-          this.waitList=[]
+          this.waitList = []
         }
       })
       .catch((err) => {
         this._increaseParamsRetry()
         this.isRequesting = false
         this.requestList.push(...this.waitList)
-        this.waitList=[]
+        this.waitList = []
       })
     // uni.request({
     // 	url: this.url + "?" + this.queryString,
@@ -171,7 +170,7 @@ export class useTrack {
     this.requestList = this.requestList.filter((item: trackMutiParams, index: number) => {
       return item.retry <= 3
     })
-    console.log(this.requestList,'abs,requestList')
+    console.log(this.requestList, 'abs,requestList')
   }
   // 获取当前路由
   _getRoute() {
