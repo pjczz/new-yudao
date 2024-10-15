@@ -66,21 +66,10 @@ router.beforeEach(async (to, from, next) => {
     const endTime = new Date()
     const userStoreTrack = useUserStore()
     const useTrack = userStoreTrack.getUseTrackIntance
-    useTrack.setParams({
-      uid: 323,
-      type: 1,
+    useTrack.setStayParams({
       // url: to.path,
       startTime,
       endTime,
-      module: '',
-      sub_modules: '[]',
-      tenantId: 45544,
-      eventName: '用户离开页面',
-      eventRes: 'success',
-      params:JSON.stringify( {
-        params: {},
-        data: {}
-      }),
       remarks: ''
     })
     startTime = new Date()

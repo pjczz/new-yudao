@@ -132,7 +132,7 @@
             <el-col v-for="item in shortcut" :key="`team-${item.name}`" :span="8" class="mb-8px">
               <div class="flex items-center">
                 <Icon :icon="item.icon" class="mr-8px" />
-                <el-link type="default" :underline="false" @click="setWatermark(item.name)">
+                <el-link type="default" :underline="false" @click="setWatermarkFun(item.name)">
                   {{ item.name }}
                 </el-link>
               </div>
@@ -185,6 +185,7 @@ defineOptions({ name: 'Home' })
 
 const { t } = useI18n()
 const userStore = useUserStore()
+const useTrack = userStore.getUseTrackIntance
 const { setWatermark } = useWatermark()
 const loading = ref(true)
 const avatar = userStore.getUser.avatar
@@ -208,6 +209,10 @@ const getCount = async () => {
 
 // 获取项目数
 let projects = reactive<Project[]>([])
+const setWatermarkFun = (name)=>{
+  setWatermark(name)
+  useTrack.setClickParams({eventName: name, remarks: ''})
+}
 const getProject = async () => {
   const data = [
     {

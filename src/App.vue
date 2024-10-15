@@ -25,23 +25,15 @@ const setDefaultTheme = () => {
 }
 setDefaultTheme()
 onMounted(() => {
+  const userStoreTrack = useUserStore()
+    const useTrack = userStoreTrack.getUseTrackIntance
+    useTrack.setParams({uid:'2312311',tenantId:'123213'})
   // window.addEventListener('click', function (e) {
   //   console.log(e)
   // })
   window.addEventListener('unhandledrejection', event => {
-    const userStoreTrack = useUserStore()
-    const useTrack = userStoreTrack.getUseTrackIntance
-    const startTime = new Date()
-    useTrack.setParams({
-      uid: 323,
-      type: 1,
+    useTrack.setErrorParams({
       // url: to.path,
-      startTime,
-      endTime: startTime,
-      module: '',
-      sub_modules: '[]',
-      tenantId: 45544,
-      eventName: '错误',
       eventRes: event.reason,
       params: JSON.stringify({
         params: {},

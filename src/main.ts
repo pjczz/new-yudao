@@ -78,21 +78,11 @@ const setupAll = async () => {
     console.log('错误信息:', info);
     const userStoreTrack = useUserStore()
     const useTrack = userStoreTrack.getUseTrackIntance
-    const startTime = new Date()
-    useTrack.setParams({
-      uid: 323,
-      type: 3,
-      // url: to.path,
-      startTime,
-      endTime: startTime,
-      module: '',
-      sub_modules: '[]',
-      tenantId: 45544,
-      eventName: '错误',
+    useTrack.setErrorParams({
       eventRes: info,
       params: JSON.stringify({
         params: {},
-        data: {}
+        data: {err}
       }),
       remarks: ''
     })
