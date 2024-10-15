@@ -28,13 +28,18 @@ export class useTrack {
     remarks: '',
     retry: 1
   }
-  private params: trackMutiParams = { ...this.INITPARAMS }
+  private params: trackMutiParams = Object.assign({}, this.INITPARAMS)
+  // 在请求期间触发的埋点，需要等待请求结束再发送
+  private waitList: trackMutiParams[] = []
+  // 是否正在发送请求的标志
+  private isRequesting: boolean = false
 
   private request: Function = function () {}
   constructor(request) {
     this.request = request
     this._setTimerToSendRequest()
   }
+  // 判断是否为web端
   _isWebEnvironment() {
     return typeof window !== 'undefined' && typeof window.document !== 'undefined'
   }
@@ -42,21 +47,18 @@ export class useTrack {
   _initParams() {
     // 初始化不改动uid 和tenantId  这两个id只受setParams方法改动
     const { uid, tenantId } = this.params
-    this.params = {
-      ...this.INITPARAMS,
-      uid,
-      tenantId
-    }
+    this.params = Object.assign(this.INITPARAMS, { uid, tenantId })
+    console.log(this.params, '_initParams')
   }
   // 设置参数
   setParams = (params: { uid?: string; tenantId?: string }) => {
     this.params.uid = params.uid ? params.uid : this.params.uid
     this.params.tenantId = params.tenantId ? params.tenantId : this.params.tenantId
   }
-/**
+  /**
    *页面停留的传参方法
    */
-   setStayParams = (params: trackStayParams) => {
+  setStayParams = (params: trackStayParams) => {
     if (!this.params.uid || !this.params.tenantId) return
     this._getRoute()
     this.params.type = 1
@@ -68,7 +70,8 @@ export class useTrack {
         this.params[item] = this._formatDate(params[item])
       }
     })
-    this.requestList.push(this.params)
+    const obj = Object.assign({}, this.params)
+    this.isRequesting ? this.waitList.push(obj) : this.requestList.push(obj)
     // 每次设置都重置参数
     this._initParams()
   }
@@ -86,7 +89,8 @@ export class useTrack {
     Object.keys(params).forEach((item) => {
       if (item != 'uid') this.params[item] = params[item]
     })
-    this.requestList.push(this.params)
+    const obj = Object.assign({}, this.params)
+    this.isRequesting ? this.waitList.push(obj) : this.requestList.push(obj)
     // 每次设置都重置参数
     this._initParams()
   }
@@ -103,11 +107,11 @@ export class useTrack {
     Object.keys(params).forEach((item) => {
       if (item != 'uid') this.params[item] = params[item]
     })
-    this.requestList.push(this.params)
+    const obj = Object.assign({}, this.params)
+    this.isRequesting ? this.waitList.push(obj) : this.requestList.push(obj)
     // 每次设置都重置参数
     this._initParams()
   }
-  
 
   // 发送请求
   /**
@@ -125,22 +129,29 @@ export class useTrack {
       const obj = {}
       Object.keys(item).forEach((key) => {
         if (key != 'retry') obj[key] = item[key]
+        // obj[key] = item[key]
       })
       requestTempList.push(obj as trackParams)
     })
 
     // 执行所有存起来的请求
     // 发送失败则添加重试的次数
+    this.isRequesting = true
     this.request(requestTempList)
       .then((res) => {
         if (res.ret) {
           this.requestList = []
         } else {
+          // 对当前请求的参数列表进行添加retry的操作 添加完以后，在请求期间触发的埋点参数 放入requestList中
           this._increaseParamsRetry()
+          this.isRequesting = false
+          this.requestList.push(...this.waitList)
         }
       })
       .catch((err) => {
         this._increaseParamsRetry()
+        this.isRequesting = false
+        this.requestList.push(...this.waitList)
       })
     // uni.request({
     // 	url: this.url + "?" + this.queryString,
@@ -148,16 +159,15 @@ export class useTrack {
   }
   // 处理发送失败的数据
   _increaseParamsRetry() {
-    this.requestList.forEach((item) => {
-      item.retry++
+    console.log('_increaseParamsRetry')
+    this.requestList.forEach((item, index) => {
+      this.requestList[index].retry = this.requestList[index].retry + 1
     })
   }
   // 删除重试次数大于3次的埋点数据
   _deleteOverTryParam() {
-    this.requestList.forEach((item: trackMutiParams, index: number) => {
-      if (item.retry > 3) {
-        this.requestList.splice(index, 1)
-      }
+    this.requestList = this.requestList.filter((item: trackMutiParams, index: number) => {
+      return item.retry <= 3
     })
   }
   _getRetryParam() {}
