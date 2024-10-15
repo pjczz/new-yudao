@@ -52,7 +52,6 @@ service.interceptors.request.use(
     config.headers._t = _t
     config.headers._s = _s
     config.headers._u = _u
-    console.log(_t,_s,_u,'------------------')
     // 是否需要设置 token
     let isToken = (config!.headers || {}).isToken === false
     whiteList.some((v) => {
