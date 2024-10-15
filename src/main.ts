@@ -27,6 +27,7 @@ import '@/plugins/animate.css'
 
 // 路由
 import router, { setupRouter } from '@/router'
+import { useUserStore } from '@/store/modules/user'
 
 // 权限
 import { setupAuth } from '@/directives'
@@ -37,8 +38,8 @@ import App from './App.vue'
 
 import './permission'
 
-import trackMixin from '@/mixins/trackMixin'
-import { sendTracking } from './api/track/manual'
+// import trackMixin from '@/mixins/trackMixin'
+// import { sendTracking } from './api/track/manual'
 
 
 
@@ -67,7 +68,38 @@ const setupAll = async () => {
 
   await router.isReady()
   // app.mixin(trackMixin);
-
+  app.config.errorHandler = (err, instance, info) => {
+    // err: 错误对象
+    // instance: 发生错误的组件实例
+    // info: 错误的具体信息，比如生命周期钩子、渲染函数等
+  
+    console.error('捕获到全局错误:', err);
+    console.log('错误发生在组件:', instance);
+    console.log('错误信息:', info);
+    const userStoreTrack = useUserStore()
+    const useTrack = userStoreTrack.getUseTrackIntance
+    const startTime = new Date()
+    useTrack.setParams({
+      uid: 323,
+      type: 3,
+      // url: to.path,
+      startTime,
+      endTime: startTime,
+      module: '',
+      sub_modules: '[]',
+      tenantId: 45544,
+      eventName: '错误',
+      eventRes: info,
+      params: JSON.stringify({
+        params: {},
+        data: {}
+      }),
+      remarks: ''
+    })
+  
+    // 在这里可以将错误上报到服务器
+    // reportError(err, instance, info);
+  };
   app.use(VueDOMPurifyHTML)
 
   app.mount('#app')

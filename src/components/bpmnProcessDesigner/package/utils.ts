@@ -1,4 +1,5 @@
 import { toRaw } from 'vue'
+import {v4 as uuidv4} from 'uuid'
 const bpmnInstances = () => (window as any)?.bpmnInstances
 // 创建监听器实例
 export function createListenerObject(options, isTask, prefix) {

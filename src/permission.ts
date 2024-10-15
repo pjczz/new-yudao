@@ -64,7 +64,6 @@ router.beforeEach(async (to, from, next) => {
   start()
   loadStart()
     const endTime = new Date()
-    console.log('刷新计时器埋点数据:',startTime)
     const userStoreTrack = useUserStore()
     const useTrack = userStoreTrack.getUseTrackIntance
     useTrack.setParams({
@@ -84,7 +83,6 @@ router.beforeEach(async (to, from, next) => {
       }),
       remarks: ''
     })
-    console.log('页面跳转埋点数据:', endTime,startTime, to)
     startTime = new Date()
   if (getAccessToken()) {
     if (to.path === '/login') {

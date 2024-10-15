@@ -1,9 +1,7 @@
-import { trackParams } from '../api/track/manual/index'
-interface trackMutiParams extends trackParams {
-  retry: number
-}
+import { trackParams, trackMutiParams } from '@/types/tracking'
 
-// tracking.js
+
+// tracking.js 最好在获取uid或获取token的地方做初始化和刷新操作
 export class useTrack {
   // 设计异步批量请求埋点
   private requestList: trackMutiParams[] = []
@@ -32,6 +30,28 @@ export class useTrack {
   _isWebEnvironment() {
     return typeof window !== 'undefined' && typeof window.document !== 'undefined'
   }
+  // 初始化参数
+  _initParams(){
+    // 初始化不改动uid 和tenantId  这两个id只受setParams方法改动
+    const {uid, tenantId} = this.params
+    this.params = {
+    project: import.meta.env.VITE_TRACK_PROJECT,
+    system: import.meta.env.VITE_TRACK_SYSTEM,
+    module: '',
+    sub_modules: '[]',
+    tenantId: tenantId,
+    uid: uid,
+    type: 0,
+    startTime: '',
+    endTime: '',
+    eventName: '',
+    eventRes: '',
+    url: '',
+    params: '',
+    remarks: '',
+    retry: 1
+    }
+  }
   // 设置参数
   setParams = (params) => {
     const flag = this._isWebEnvironment()
@@ -39,10 +59,11 @@ export class useTrack {
       // 首次注册需要设置uid
       if (params.uid) {
         this.params.uid = params.uid
-        console.log('执行了吗', params.uid)
       }
-      console.log(params.uid, this.params.uid, 'params.uid')
-      // 默认在此处获取URL
+      if (!params.endTime) {
+        this.params.endTime = params.startTime
+      }
+      // 默认在此处获取URL和路由
       this._getRoute()
 
       // 变量赋值
@@ -52,10 +73,13 @@ export class useTrack {
           this.params[item] = this._formatDate(params[item])
         }
       })
+      // 业务条件 停留小于5s不统计 后续还会增加
       if (params.type == 1 && params.endTime.getTime() - params.startTime.getTime() < 5000) {
         return
       }
       this.requestList.push(this.params)
+      // 每次设置都重置参数
+      this._initParams()
     }
   }
   // 发送请求
@@ -65,7 +89,7 @@ export class useTrack {
    */
   sendRequest = () => {
     // 删除重试次数大于3次的埋点数据
-    this._deleteParam()
+    this._deleteOverTryParam()
     // 未空则不执行
     if (!this.requestList || !this.requestList.length) return
     const requestTempList:trackParams[] = []
@@ -79,32 +103,32 @@ export class useTrack {
     })
 
     // 执行所有存起来的请求
-    this.request(this.requestList)
+    // 发送失败则添加重试的次数
+    this.request(requestTempList)
       .then((res) => {
-        console.log(res)
         if(res.ret){
           this.requestList = []
         }
         else{
-          this._recordRetry()
+          this._increaseParamsRetry()
         }
 
       })
       .catch((err) => {
-        this._recordRetry()
+        this._increaseParamsRetry()
       })
     // uni.request({
     // 	url: this.url + "?" + this.queryString,
     // })
   }
   // 处理发送失败的数据
-  _recordRetry(){
+  _increaseParamsRetry(){
     this.requestList.forEach((item) => {
       item.retry++
     })
   }
   // 删除重试次数大于3次的埋点数据
-  _deleteParam() {
+  _deleteOverTryParam() {
     this.requestList.forEach((item: trackMutiParams, index: number) => {
       if (item.retry > 3) {
         this.requestList.splice(index, 1)
@@ -116,10 +140,12 @@ export class useTrack {
   _getRoute() {
     const flag = this._isWebEnvironment()
     if (!flag) {
+      // uniapp支持
       const pages = getCurrentPages()
       const page = pages[pages.length - 1]
       this.params.url = page.route
     } else {
+      // web端支持
       this.params.url = window.location.pathname
     }
   }
@@ -166,12 +192,12 @@ export class useTrack {
 
     // 处理日期
     if (obj instanceof Date) {
-      return new Date(obj)
+      return new Date(obj) as T
     }
 
     // // 处理正则表达式
     if (obj instanceof RegExp) {
-      return new RegExp(obj)
+      return new RegExp(obj) as T
     }
 
     // // 处理数组
@@ -180,17 +206,17 @@ export class useTrack {
       for (let i = 0; i < obj.length; i++) {
         arrCopy[i] = this._deepClone(obj[i])
       }
-      return arrCopy
+      return arrCopy as T
     }
 
     // 处理普通对象
-    const objCopy = {}
+    let objCopy:trackMutiParams
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
         objCopy[key] = this._deepClone(obj[key])
       }
     }
 
-    return objCopy
+    return objCopy as T
   }
 }

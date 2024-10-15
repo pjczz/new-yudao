@@ -19,7 +19,7 @@ import { deleteUserCache } from '@/hooks/web/useCache'
 const tenantEnable = import.meta.env.VITE_APP_TENANT_ENABLE
 const { result_code, base_url, request_timeout } = config
 interface InternalAxiosRequestConfigWithRaw extends InternalAxiosRequestConfig {
-  isRaw?:boolean
+  isRaw?: boolean
 }
 
 // 需要忽略的提示。忽略后，自动 Promise.reject('error')
@@ -48,9 +48,11 @@ const service: AxiosInstance = axios.create({
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfigWithRaw) => {
     // 获取时间戳和签名
-    const { _t, _s } = getSignature(config.data)
+    const { _t, _s, _u } = getSignature(config.data)
     config.headers._t = _t
     config.headers._s = _s
+    config.headers._u = _u
+    console.log(_t,_s,_u,'------------------')
     // 是否需要设置 token
     let isToken = (config!.headers || {}).isToken === false
     whiteList.some((v) => {
@@ -100,7 +102,6 @@ service.interceptors.request.use(
 // response 拦截器
 service.interceptors.response.use(
   async (response: AxiosResponse<any>) => {
-    console.log(response,'response')
     let { data } = response
     const config:InternalAxiosRequestConfigWithRaw = response.config
     if (!data) {
