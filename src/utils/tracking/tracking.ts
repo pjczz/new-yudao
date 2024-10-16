@@ -3,13 +3,15 @@ import {
   trackMutiParams,
   trackClickParams,
   trackErrorParams,
-  trackStayParams,
+  trackStayParams
 } from './trackingType'
-
+import { trackRoute } from './trackRoute'
+import { pages } from 'virtual:uni-pages'
 // tracking.js 最好在获取uid或获取token的地方做初始化和刷新操作
 export class useTrack {
   // 设计异步批量请求埋点
   private requestList: trackMutiParams[] = []
+  private trackRouteInstance: trackRoute | null = null
   INITPARAMS = {
     project: import.meta.env.VITE_TRACK_PROJECT,
     system: import.meta.env.VITE_TRACK_SYSTEM,
@@ -37,27 +39,28 @@ export class useTrack {
   constructor(request) {
     this.request = request
     this._setTimerToSendRequest()
+    this.trackRouteInstance = new trackRoute()
   }
   // 判断是否为web端
-  _isWebEnvironment() {
+  _isWebEnvironment(): boolean {
     return typeof window !== 'undefined' && typeof window.document !== 'undefined'
   }
   // 初始化参数
-  _initParams() {
+  _initParams(): void {
     // 初始化不改动uid 和tenantId  这两个id只受setParams方法改动
     const { uid, tenantId } = this.params
     this.params = Object.assign(this.INITPARAMS, { uid, tenantId })
     console.log(this.params, '_initParams')
   }
   // 设置参数
-  setParams = (params: { uid?: string; tenantId?: string }) => {
+  setParams = (params: { uid?: string; tenantId?: string }): void => {
     this.params.uid = params.uid ? params.uid : this.params.uid
     this.params.tenantId = params.tenantId ? params.tenantId : this.params.tenantId
   }
   /**
    *页面停留的传参方法
    */
-  setStayParams = (params: trackStayParams) => {
+  setStayParams = (params: trackStayParams): void => {
     if (!this.params.uid || !this.params.tenantId) return
     this._getRoute()
     this.params.type = 1
@@ -77,7 +80,7 @@ export class useTrack {
   /**
    * 点击事件的传参方法
    */
-  setClickParams = (params: trackClickParams) => {
+  setClickParams = (params: trackClickParams): void => {
     if (!this.params.uid || !this.params.tenantId) return
     // 默认在此处获取URL和路由
     this._getRoute()
@@ -96,7 +99,7 @@ export class useTrack {
   /**
    *异常事件的传参方法
    */
-  setErrorParams = (params: trackErrorParams) => {
+  setErrorParams = (params: trackErrorParams): void => {
     if (!this.params.uid || !this.params.tenantId) return
     this._getRoute()
     this.params.type = 3
@@ -117,13 +120,13 @@ export class useTrack {
    * 每次请求之前都先删除重试过多的接口 保证每个埋点最多重试3次
    * @returns
    */
-  sendRequest = () => {
+  sendRequest = (): void => {
     // 删除重试次数大于3次的埋点数据
     this._deleteOverTryParam()
     // 未空则不执行
     if (!this.requestList || !this.requestList.length) return
     const requestTempList: trackParams[] = []
-
+    // 删除retry字段 冗余字段，请求接口
     this.requestList.forEach((item) => {
       const obj = {}
       Object.keys(item).forEach((key) => {
@@ -159,21 +162,21 @@ export class useTrack {
     // })
   }
   // 处理发送失败的数据
-  _increaseParamsRetry() {
+  _increaseParamsRetry(): void {
     console.log('_increaseParamsRetry')
     this.requestList.forEach((item, index) => {
       this.requestList[index].retry = this.requestList[index].retry + 1
     })
   }
   // 删除重试次数大于3次的埋点数据
-  _deleteOverTryParam() {
+  _deleteOverTryParam(): void {
     this.requestList = this.requestList.filter((item: trackMutiParams, index: number) => {
       return item.retry <= 3
     })
     console.log(this.requestList, 'abs,requestList')
   }
   // 获取当前路由
-  _getRoute() {
+  _getRoute(): void {
     const flag = this._isWebEnvironment()
     if (!flag) {
       // uniapp支持
@@ -183,10 +186,21 @@ export class useTrack {
     } else {
       // web端支持
       this.params.url = window.location.pathname
+      if (this.trackRouteInstance) {
+        // H
+        const moduleList: string[] = this.trackRouteInstance.getModulesByPath(this.params.url)
+        this.params.module = moduleList.length ? moduleList[0] : ''
+        this.params.sub_modules = JSON.stringify(moduleList.slice(1))
+      }
+      else{
+        console.log('初始化失败 this.trackRouteInstance')
+      }
     }
   }
+  // 定时发送请求列表中的请求
   _setTimerToSendRequest() {
     setInterval(() => {
+      // 请求列表不为空就发送
       if (this.requestList.length > 0 && !this.isRequesting) {
         this.sendRequest()
       }

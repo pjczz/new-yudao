@@ -26,8 +26,8 @@ const setDefaultTheme = () => {
 setDefaultTheme()
 onMounted(() => {
   const userStoreTrack = useUserStore()
-    const useTrack = userStoreTrack.getUseTrackIntance
-    useTrack.setParams({uid:'2312311',tenantId:'123213'})
+  const useTrack = userStoreTrack.getUseTrackIntance
+  useTrack.setParams({ uid: '2312311', tenantId: '123213' })
   // window.addEventListener('click', function (e) {
   //   console.log(e)
   // })
