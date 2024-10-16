@@ -4,14 +4,16 @@ import {
   trackClickParams,
   trackErrorParams,
   trackStayParams
-} from './trackingType'
-import { trackRoute } from './trackRoute'
-import { pages } from 'virtual:uni-pages'
+} from './tracking'
+import trackRoute from './trackRoute'
+
+// import { pages } from 'virtual:uni-pages'
 // tracking.js 最好在获取uid或获取token的地方做初始化和刷新操作
-export class useTrack {
+export default class trackRequest {
   // 设计异步批量请求埋点
-  private requestList: trackMutiParams[] = []
-  private trackRouteInstance: trackRoute | null = null
+   requestList: trackMutiParams[] = []
+   trackRouteInstance: trackRoute | null = null
+
   INITPARAMS = {
     project: import.meta.env.VITE_TRACK_PROJECT,
     system: import.meta.env.VITE_TRACK_SYSTEM,
@@ -50,7 +52,6 @@ export class useTrack {
     // 初始化不改动uid 和tenantId  这两个id只受setParams方法改动
     const { uid, tenantId } = this.params
     this.params = Object.assign(this.INITPARAMS, { uid, tenantId })
-    console.log(this.params, '_initParams')
   }
   // 设置参数
   setParams = (params: { uid?: string; tenantId?: string }): void => {
@@ -163,7 +164,6 @@ export class useTrack {
   }
   // 处理发送失败的数据
   _increaseParamsRetry(): void {
-    console.log('_increaseParamsRetry')
     this.requestList.forEach((item, index) => {
       this.requestList[index].retry = this.requestList[index].retry + 1
     })
@@ -173,16 +173,15 @@ export class useTrack {
     this.requestList = this.requestList.filter((item: trackMutiParams, index: number) => {
       return item.retry <= 3
     })
-    console.log(this.requestList, 'abs,requestList')
   }
   // 获取当前路由
   _getRoute(): void {
     const flag = this._isWebEnvironment()
     if (!flag) {
       // uniapp支持
-      const pages = getCurrentPages()
-      const page = pages[pages.length - 1]
-      this.params.url = page.route
+      // const pages = getCurrentPages()
+      // const page = pages[pages.length - 1]
+      // this.params.url = page.route
     } else {
       // web端支持
       this.params.url = window.location.pathname
@@ -191,9 +190,6 @@ export class useTrack {
         const moduleList: string[] = this.trackRouteInstance.getModulesByPath(this.params.url)
         this.params.module = moduleList.length ? moduleList[0] : ''
         this.params.sub_modules = JSON.stringify(moduleList.slice(1))
-      }
-      else{
-        console.log('初始化失败 this.trackRouteInstance')
       }
     }
   }

@@ -63,15 +63,15 @@ const whiteList = [
 router.beforeEach(async (to, from, next) => {
   start()
   loadStart()
-    const endTime = new Date()
-    const userStoreTrack = useUserStore()
-    const useTrack = userStoreTrack.getUseTrackIntance
-    useTrack.setStayParams({
-      // url: to.path,
-      startTime,
-      endTime,
-      remarks: ''
-    })
+    // const endTime = new Date()
+    // const userStoreTrack = useUserStore()
+    // const useTrack = userStoreTrack.getUseTrackIntance
+    // useTrack.setStayParams({
+    //   // url: to.path,
+    //   startTime,
+    //   endTime,
+    //   remarks: ''
+    // })
     startTime = new Date()
   if (getAccessToken()) {
     if (to.path === '/login') {

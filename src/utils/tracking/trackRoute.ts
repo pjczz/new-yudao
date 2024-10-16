@@ -1,7 +1,7 @@
 import router from '@/router'
 import { RouteRecordRaw } from 'vue-router'
 
-export class trackRoute {
+export default class trackRoute {
   allRoutes: RouteRecordRaw[] = []
   findRouteMetaTitle(routes, path): string {
     // 遍历路由表，根据path查找匹配的路由
@@ -49,7 +49,6 @@ export class trackRoute {
     }
     const modulePath = this.splitUrl(path)
     const res = this.buildMetaTitleList(this.allRoutes, modulePath)
-    console.log(this.allRoutes, res, 'allroutes')
     return res
   }
 }

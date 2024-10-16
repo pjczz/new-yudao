@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { getAccessToken, removeToken } from '@/utils/auth'
 import { CACHE_KEY, useCache, deleteUserCache } from '@/hooks/web/useCache'
 import { getInfo, loginOut } from '@/api/login'
-import { useTrack } from '@/utils/tracking/tracking'
+import useTrack from '@/utils/tracking/useTrack'
 import { sendTracking } from '@/api/track/manual'
 
 const { wsCache } = useCache()
