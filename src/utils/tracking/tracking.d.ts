@@ -39,6 +39,7 @@ export interface trackMutiParams extends trackParams {
 export interface trackClickParams { // 点击事件
   eventName: string
   remarks?: string
+  params?: string
 }
 
 export interface trackErrorParams { // 错误

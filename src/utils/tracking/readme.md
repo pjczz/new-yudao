@@ -1,4 +1,5 @@
-# 埋点文件使用
+# **埋点文件使用**
+
 ## 1、目前支持浏览器环境
 
 ## 2、埋点文件初始化依赖于传入请求函数
@@ -112,6 +113,7 @@ return useUserStore(store)
 
 3、埋点文件使用
 
+```jsx
 import { useTrackIntance } from '@/utils/tracking'
 
 import { useTrack } from '@/utils/tracking/useTrack'
@@ -161,5 +163,8 @@ endTime: Date
 remarks?: string
 
 }
+```
 
-4、目前页面停留时间采用的路由拦截器的方案，未来会改成监听url的方案
+4、目前页面停留时间采用监听url的方案
+
+5、已经支持自动监听按钮，如果按钮在table里 会将table的当前列和表头数据上传

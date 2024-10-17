@@ -1,16 +1,20 @@
 import trackRequest from './trackRequest'
 export default class useTrack extends trackRequest {
   enterTime: Date = new Date()
+  isWeb: boolean = false
   constructor(request) {
     super(request)
+    this.isWeb = super._isWebEnvironment()
     // 开启url监听并上传
     this.listenUrlChange()
+    // 开启点击监听
+    this.listenClick()
   }
 
   // 实例化开启监听
   listenUrlChange() {
     // web环境 执行这样的处理
-    if (this._isWebEnvironment()) {
+    if (this.isWeb) {
       this.hookHistoryMethods()
       // 监听通过监听popstate事件 监听url变化
       window.addEventListener('popstate', this.handleUrlChange)
@@ -18,8 +22,70 @@ export default class useTrack extends trackRequest {
     // unibest 环境
     // 待定
   }
+  // 开启点击监听
+  listenClick() {
+    // 仅在web端的elementui按钮适用
+    if (!this.isWeb) return
+    window.addEventListener('click', (e: Event) => {
+      const target = e.target as HTMLElement
+      // 判断是不是点到了按钮的文字
+      const trackableParent = target.closest('.el-button')
+      // 点到按钮本身就获取他的span里的文字
+      const trackableChildren = target.querySelector('span')
+      const table = target.closest('.el-table')
+      let clickName = ''
+      // 必须点击的元素是按钮或者他的父元素是按钮（点到文字时）
+      if (e.target) {
+        if (target.tagName === 'BUTTON' && trackableChildren) {
+          clickName = trackableChildren.innerText
+        } else if (trackableParent && trackableParent.tagName == 'BUTTON') {
+          clickName = target.innerText
+        } else {
+          return
+        }
+        if (clickName != '') {
+          console.log(clickName)
+        }
+
+        const threadList: string[] = []
+        const selectList: string[] = []
+        const dataList: { key: string; value: string }[] = []
+        // 处理表格中的编辑
+        if (table) {
+          // 点击行的所有参数
+          const childNodes = target.closest('tr')?.childNodes
+          // 获取表头
+          const thread = table.querySelector('.el-table thead tr')
+
+          if (childNodes) {
+            Array.from(childNodes).forEach((child, index) => {
+              selectList.push(child.innerText)
+            })
+          }
+          // 获取表头的列表
+          if (thread) {
+            Array.from(thread.childNodes).forEach((child, index) => {
+              threadList.push(child.innerText)
+            })
+          }
+          // 去除最后一个操作栏
+          for (let index = 0; index < selectList.length - 1; index++) {
+            dataList.push({
+              key: threadList[index],
+              value: selectList[index]
+            })
+          }
+          console.log(dataList)
+        }
+        this.setClickParams({
+          eventName: clickName,
+          params: JSON.stringify({ params: {}, data: dataList.length > 0 ? dataList : {} })
+        })
+      }
+    })
+  }
   // 重写pushState和replaceState方法，让popstate可以监听到vue对history的操作
-  hookHistoryMethods() {
+  hookHistoryMethods(): void {
     const originalPushState = window.history.pushState
     const originalReplaceState = window.history.replaceState
     // 劫持 pushState 方法
@@ -40,11 +106,11 @@ export default class useTrack extends trackRequest {
     }
   }
   // 记录进入页面的时间
-  recordEnterTime() {
+  recordEnterTime():void {
     this.enterTime = new Date()
   }
   // 处理 URL 变化
-  handleUrlChange() {
+  handleUrlChange():void {
     // 记录离开页面的时间
     const leaveTime = new Date()
     this.setStayParams({
