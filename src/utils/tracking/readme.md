@@ -1,5 +1,3 @@
-# **埋点文件使用**
-
 ## 1、目前支持浏览器环境
 
 ## 2、埋点文件初始化依赖于传入请求函数
@@ -19,7 +17,15 @@ useTrackIntance: new useTrack(sendTracking), sendTracking为请求函数
 
 ## 3、埋点类初始化
 
-目前埋点类初始化依赖于strore 在store中初始化  然后在全局调用
+### 3.1 目前更新非常针对的方法
+
+```
+// mainjs中调用  sendTracking是返回promise的请求函数
+app.config.globalProperties.$useTrack =new useTrack(sendTracking)
+  app.config.globalProperties.$useTrack.setApp(app)
+```
+
+### 3.2目前埋点类初始化依赖于strore 在store中初始化  然后在全局调用
 
 为保证请求队列，类全局只能初始化一次
 

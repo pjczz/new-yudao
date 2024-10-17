@@ -421,6 +421,7 @@ export function jsonParse(str: string) {
     return ''
   }
 }
+// 生成签名
 export function getSignature(data) {
   // 获取当前时间戳
   const timestamp = new Date().getTime()
@@ -439,6 +440,7 @@ export function getSignature(data) {
   }
   return headers
 }
+// 生成uuid
 export const generateUUID = () => {
   if (typeof crypto === 'object') {
     if (typeof crypto.randomUUID === 'function') {

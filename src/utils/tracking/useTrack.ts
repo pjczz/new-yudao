@@ -1,7 +1,9 @@
 import trackRequest from './trackRequest'
+import { App } from 'vue'
 export default class useTrack extends trackRequest {
   enterTime: Date = new Date()
   isWeb: boolean = false
+  app: App | null = null
   constructor(request) {
     super(request)
     this.isWeb = super._isWebEnvironment()
@@ -9,6 +11,12 @@ export default class useTrack extends trackRequest {
     this.listenUrlChange()
     // 开启点击监听
     this.listenClick()
+    // 开启错误监听
+    this.listenError()
+  }
+  setApp(app) {
+    console.log(app, 'app')
+    this.app = app
   }
 
   // 实例化开启监听
@@ -84,6 +92,44 @@ export default class useTrack extends trackRequest {
       }
     })
   }
+  // unhandledrejection
+  listenError() {
+    window.addEventListener('unhandledrejection', (event) => {
+      this.setErrorParams({
+        // url: to.path,
+        eventRes: event.reason,
+        params: JSON.stringify({
+          params: {},
+          data: {}
+        }),
+        remarks: ''
+      })
+      // 在这里可以进行上报处理
+    })
+    // vue3 专属  捕获全局错误
+    if (this.app) {
+      this.app.config.errorHandler = (err, instance, info) => {
+        // err: 错误对象
+        // instance: 发生错误的组件实例
+        // info: 错误的具体信息，比如生命周期钩子、渲染函数等
+
+        console.error('捕获到全局错误:', err)
+        console.log('错误发生在组件:', instance)
+        console.log('错误信息:', info)
+        this.setErrorParams({
+          eventRes: info,
+          params: JSON.stringify({
+            params: {},
+            data: { err }
+          }),
+          remarks: ''
+        })
+
+        // 在这里可以将错误上报到服务器
+        // reportError(err, instance, info);
+      }
+    }
+  }
   // 重写pushState和replaceState方法，让popstate可以监听到vue对history的操作
   hookHistoryMethods(): void {
     const originalPushState = window.history.pushState
@@ -106,11 +152,11 @@ export default class useTrack extends trackRequest {
     }
   }
   // 记录进入页面的时间
-  recordEnterTime():void {
+  recordEnterTime(): void {
     this.enterTime = new Date()
   }
   // 处理 URL 变化
-  handleUrlChange():void {
+  handleUrlChange(): void {
     // 记录离开页面的时间
     const leaveTime = new Date()
     this.setStayParams({

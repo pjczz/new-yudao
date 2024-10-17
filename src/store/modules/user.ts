@@ -3,8 +3,7 @@ import { defineStore } from 'pinia'
 import { getAccessToken, removeToken } from '@/utils/auth'
 import { CACHE_KEY, useCache, deleteUserCache } from '@/hooks/web/useCache'
 import { getInfo, loginOut } from '@/api/login'
-import useTrack from '@/utils/tracking/useTrack'
-import { sendTracking } from '@/api/track/manual'
+
 
 const { wsCache } = useCache()
 
@@ -21,7 +20,6 @@ interface UserInfoVO {
   roles: string[]
   isSetUser: boolean
   user: UserVO,
-  useTrackIntance: useTrack
 }
 
 export const useUserStore = defineStore('admin-user', {
@@ -35,7 +33,6 @@ export const useUserStore = defineStore('admin-user', {
       nickname: '',
       deptId: 0
     },
-    useTrackIntance: new useTrack(sendTracking),
     
   }),
   getters: {
@@ -47,9 +44,6 @@ export const useUserStore = defineStore('admin-user', {
     },
     getIsSetUser(): boolean {
       return this.isSetUser
-    },
-    getUseTrackIntance(): useTrack{
-      return this.useTrackIntance
     },
     getUser(): UserVO {
       return this.user
