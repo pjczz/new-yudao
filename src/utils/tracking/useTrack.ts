@@ -4,15 +4,15 @@ export default class useTrack extends trackRequest {
   enterTime: Date = new Date()
   isWeb: boolean = false
   app: App | null = null
-  constructor(request) {
+  constructor(request, autoUrl = true, autoClick = true, autoError = true) {
     super(request)
     this.isWeb = super._isWebEnvironment()
     // 开启url监听并上传
-    this.listenUrlChange()
+    autoUrl ? this.listenUrlChange() : console.log('启用手动监听路由')
     // 开启点击监听
-    this.listenClick()
+    autoClick ? this.listenClick() : console.log('启用手动监听点击')
     // 开启错误监听
-    this.listenError()
+    autoError ? this.listenError() : console.log('启用手动监听错误')
   }
   setApp(app) {
     console.log(app, 'app')

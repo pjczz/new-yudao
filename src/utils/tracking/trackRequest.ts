@@ -152,7 +152,7 @@ export default class trackRequest {
           this.waitList = []
         }
       })
-      .catch((err) => {
+      .catch(() => {
         this._increaseParamsRetry()
         this.isRequesting = false
         this.requestList.push(...this.waitList)
@@ -164,14 +164,14 @@ export default class trackRequest {
   }
   // 处理发送失败的数据
   _increaseParamsRetry(): void {
-    this.requestList.forEach((item, index) => {
-      this.requestList[index].retry = this.requestList[index].retry + 1
+    this.requestList.forEach((item) => {
+      item.retry = item.retry + 1
     })
   }
   // 删除重试次数大于3次的埋点数据
   _deleteOverTryParam(): void {
-    this.requestList = this.requestList.filter((item: trackMutiParams, index: number) => {
-      return item.retry <= 3
+    this.requestList = this.requestList.filter((item: trackMutiParams) => {
+      return item.retry <= 2
     })
   }
   // 获取当前路由

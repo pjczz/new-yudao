@@ -40,6 +40,9 @@ export interface trackClickParams { // 点击事件
   eventName: string
   remarks?: string
   params?: string
+  module?: string
+  sub_modules?: string
+  url?:string
 }
 
 export interface trackErrorParams { // 错误
@@ -47,6 +50,9 @@ export interface trackErrorParams { // 错误
   eventRes: string
   params: string
   remarks?: string
+  module?: string
+  sub_modules?: string
+  url?:string
 }
 
 export interface trackStayParams { // 错误
@@ -54,4 +60,7 @@ export interface trackStayParams { // 错误
   startTime: Date
   endTime: Date
   remarks?: string
+  module?: string
+  sub_modules?: string
+  url?:string
 }
