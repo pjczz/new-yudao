@@ -55,7 +55,7 @@ export default class useTrack extends trackRequest {
         if (target.tagName === 'BUTTON' && trackableChildren) {
           clickName = trackableChildren.innerText
         } else if (trackableParent && trackableParent.tagName == 'BUTTON') {
-          clickName = trackableParent.querySelector('span')?.innerText || 'sb'
+          clickName = trackableParent.querySelector('span')?.innerText || ''
         } else {
           return
         }
