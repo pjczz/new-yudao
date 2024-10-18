@@ -4,19 +4,26 @@ export default class useTrack extends trackRequest {
   enterTime: Date = new Date()
   isWeb: boolean = false
   app: App | null = null
-  constructor(request, autoUrl = true, autoClick = true, autoError = true) {
-    super(request)
+  constructor({
+    request,
+    app,
+    autoUrl = true,
+    autoClick = true,
+    autoError = true,
+    autoStay = true,
+    intervalTime = 5000,
+    retryLimit = 3
+  }) {
+    super(request, intervalTime, retryLimit, autoUrl)
+    this.app = app
+    console.log(app.version, 'app.version')
     this.isWeb = super._isWebEnvironment()
     // 开启url监听并上传
-    autoUrl ? this.listenUrlChange() : console.log('启用手动监听路由')
+    autoStay ? this.listenUrlChange() : console.log('启用手动监听路由')
     // 开启点击监听
     autoClick ? this.listenClick() : console.log('启用手动监听点击')
     // 开启错误监听
     autoError ? this.listenError() : console.log('启用手动监听错误')
-  }
-  setApp(app) {
-    console.log(app, 'app')
-    this.app = app
   }
 
   // 实例化开启监听
@@ -40,54 +47,32 @@ export default class useTrack extends trackRequest {
       const trackableParent = target.closest('.el-button')
       // 点到按钮本身就获取他的span里的文字
       const trackableChildren = target.querySelector('span')
-      const table = target.closest('.el-table')
+
       let clickName = ''
+      let params = JSON.stringify({ params: {}, data: {} })
       // 必须点击的元素是按钮或者他的父元素是按钮（点到文字时）
       if (e.target) {
         if (target.tagName === 'BUTTON' && trackableChildren) {
           clickName = trackableChildren.innerText
         } else if (trackableParent && trackableParent.tagName == 'BUTTON') {
-          clickName = target.innerText
+          clickName = trackableParent.querySelector('span')?.innerText || 'sb'
         } else {
           return
         }
         if (clickName != '') {
           console.log(clickName)
         }
-
-        const threadList: string[] = []
-        const selectList: string[] = []
-        const dataList: { key: string; value: string }[] = []
-        // 处理表格中的编辑
+        // 点击在table中 或者在 dialog中
+        const table = target.closest('.el-table')
         if (table) {
-          // 点击行的所有参数
-          const childNodes = target.closest('tr')?.childNodes
-          // 获取表头
-          const thread = table.querySelector('.el-table thead tr')
-
-          if (childNodes) {
-            Array.from(childNodes).forEach((child, index) => {
-              selectList.push(child.innerText)
-            })
-          }
-          // 获取表头的列表
-          if (thread) {
-            Array.from(thread.childNodes).forEach((child, index) => {
-              threadList.push(child.innerText)
-            })
-          }
-          // 去除最后一个操作栏
-          for (let index = 0; index < selectList.length - 1; index++) {
-            dataList.push({
-              key: threadList[index],
-              value: selectList[index]
-            })
-          }
-          console.log(dataList)
+          params = this._getTabelClick(target) || params
+        } else {
+          params = this._getDialogClick(target) || params
         }
+
         this.setClickParams({
           eventName: clickName,
-          params: JSON.stringify({ params: {}, data: dataList.length > 0 ? dataList : {} })
+          params
         })
       }
     })
@@ -106,7 +91,7 @@ export default class useTrack extends trackRequest {
       })
       // 在这里可以进行上报处理
     })
-    // vue3 专属  捕获全局错误
+    // vue3 专属 vue2 需要验证  捕获全局错误
     if (this.app) {
       this.app.config.errorHandler = (err, instance, info) => {
         // err: 错误对象
@@ -167,5 +152,73 @@ export default class useTrack extends trackRequest {
     })
     // 更新进入时间，记录新页面的进入时间
     this.recordEnterTime()
+  }
+  // 获取表格中的数据 如果点击的是表格的话
+
+  _getTabelClick(target): string | null {
+    const threadList: string[] = []
+    const selectList: string[] = []
+    const dataList: { key: string; value: string }[] = []
+    const table = target.closest('.el-table')
+    // 处理表格中的编辑
+    if (table) {
+      // 点击行的所有参数
+      const childNodes: NodeListOf<ChildNode> | undefined = target.closest('tr')?.childNodes
+      // 获取表头
+      const thread: HTMLElement = table.querySelector('.el-table thead tr')
+
+      if (childNodes) {
+        Array.from(childNodes).forEach((child: HTMLElement) => {
+          if (child) {
+            selectList.push(child.innerText)
+          }
+        })
+      }
+      // 获取表头的列表
+      if (thread) {
+        Array.from(thread.childNodes).forEach((child: HTMLElement) => {
+          threadList.push(child.innerText)
+        })
+      }
+      // 去除最后一个操作栏
+      for (let index = 0; index < selectList.length - 1; index++) {
+        dataList.push({
+          key: threadList[index],
+          value: selectList[index]
+        })
+      }
+      return JSON.stringify({ params: {}, data: dataList.length > 0 ? dataList : {} })
+    }
+    return null
+  }
+  // 获取弹窗表单的数据
+  _getDialogClick(target): string | null {
+    const dataList: { key: string; value: string }[] = []
+    const dialog = target.closest('.el-dialog')
+    const dialogBody = dialog?.querySelector('.el-dialog__body')
+    // 处理表格中的编辑
+    if (dialogBody) {
+      // 点击行的所有参数
+      const form: HTMLElement = dialogBody.querySelector('form')
+
+      // 获取所有的表单元素
+      const labels = form.querySelectorAll('label')
+
+      labels.forEach((label) => {
+        // 获取关联的 label
+        // const label = form.querySelector(`label[for="${input.id}"]`)
+        const id = label.getAttribute('for')
+        if (label && id) {
+          dataList.push({
+            key: label.textContent || '',
+            value: form.querySelector(`#${id}`)?.value || ''
+          })
+          // console.log(`Label: ${label.textContent}, Value: ${input.value}`)
+        }
+      })
+
+      return JSON.stringify({ params: {}, data: dataList.length > 0 ? dataList : {} })
+    }
+    return null
   }
 }

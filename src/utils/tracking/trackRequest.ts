@@ -3,7 +3,8 @@ import {
   trackMutiParams,
   trackClickParams,
   trackErrorParams,
-  trackStayParams
+  trackStayParams,
+  trackAccessParams
 } from './tracking'
 import trackRoute from './trackRoute'
 
@@ -11,8 +12,11 @@ import trackRoute from './trackRoute'
 // tracking.js 最好在获取uid或获取token的地方做初始化和刷新操作
 export default class trackRequest {
   // 设计异步批量请求埋点
-   requestList: trackMutiParams[] = []
-   trackRouteInstance: trackRoute | null = null
+  requestList: trackMutiParams[] = []
+  trackRouteInstance: trackRoute | null = null
+  intervalTime: number = 5000
+  retryLimit: number = 3
+  autoUrl: boolean = true
 
   INITPARAMS = {
     project: import.meta.env.VITE_TRACK_PROJECT,
@@ -31,16 +35,21 @@ export default class trackRequest {
     remarks: '',
     retry: 0
   }
-  private params: trackMutiParams = Object.assign({}, this.INITPARAMS)
+  params: trackMutiParams = Object.assign({}, this.INITPARAMS)
+  paramsKeys: string[] = Object.keys(this.INITPARAMS)
   // 在请求期间触发的埋点，需要等待请求结束再发送
-  private waitList: trackMutiParams[] = []
+  waitList: trackMutiParams[] = []
   // 是否正在发送请求的标志
-  private isRequesting: boolean = false
+  isRequesting: boolean = false
 
-  private request: Function = function () {}
-  constructor(request) {
+  request: Function = function () {}
+  constructor(request, intervalTime, retryLimit, autoUrl) {
     this.request = request
+    this.intervalTime = intervalTime
+    this.retryLimit = retryLimit
+    this.autoUrl = autoUrl
     this._setTimerToSendRequest()
+
     this.trackRouteInstance = new trackRoute()
   }
   // 判断是否为web端
@@ -51,7 +60,7 @@ export default class trackRequest {
   _initParams(): void {
     // 初始化不改动uid 和tenantId  这两个id只受setParams方法改动
     const { uid, tenantId } = this.params
-    this.params = Object.assign(this.INITPARAMS, { uid, tenantId })
+    this.params = Object.assign({}, this.INITPARAMS, { uid, tenantId })
   }
   // 设置参数
   setParams = (params: { uid?: string; tenantId?: string }): void => {
@@ -68,7 +77,7 @@ export default class trackRequest {
     this.params.eventName = '页面停留'
     // 变量赋值
     Object.keys(params).forEach((item) => {
-      if (item != 'uid') this.params[item] = params[item]
+      if (item != 'uid' && this.paramsKeys.includes(item)) this.params[item] = params[item]
       if (item == 'startTime' || item == 'endTime') {
         this.params[item] = this._formatDate(params[item])
       }
@@ -90,7 +99,7 @@ export default class trackRequest {
     this.params.endTime = this.params.startTime
     // 变量赋值
     Object.keys(params).forEach((item) => {
-      if (item != 'uid') this.params[item] = params[item]
+      if (item != 'uid' && this.paramsKeys.includes(item)) this.params[item] = params[item]
     })
     const obj = Object.assign({}, this.params)
     this.isRequesting ? this.waitList.push(obj) : this.requestList.push(obj)
@@ -108,14 +117,31 @@ export default class trackRequest {
     this.params.endTime = this.params.startTime
     // 变量赋值
     Object.keys(params).forEach((item) => {
-      if (item != 'uid') this.params[item] = params[item]
+      if (item != 'uid' && this.paramsKeys.includes(item)) this.params[item] = params[item]
     })
     const obj = Object.assign({}, this.params)
     this.isRequesting ? this.waitList.push(obj) : this.requestList.push(obj)
     // 每次设置都重置参数
     this._initParams()
   }
-
+  /**
+   *访问页面的传参方法
+   */
+   setAccessParams = (params: trackAccessParams): void => {
+    if (!this.params.uid || !this.params.tenantId) return
+    this._getRoute()
+    this.params.type = 4
+    this.params.startTime = this._formatDate(new Date())
+    this.params.endTime = this.params.startTime
+    // 变量赋值
+    Object.keys(params).forEach((item) => {
+      if (item != 'uid' && this.paramsKeys.includes(item)) this.params[item] = params[item]
+    })
+    const obj = Object.assign({}, this.params)
+    this.isRequesting ? this.waitList.push(obj) : this.requestList.push(obj)
+    // 每次设置都重置参数
+    this._initParams()
+  }
   // 发送请求
   /**
    * 每次请求之前都先删除重试过多的接口 保证每个埋点最多重试3次
@@ -143,7 +169,10 @@ export default class trackRequest {
     this.request(requestTempList)
       .then((res) => {
         if (res.ret) {
+          this.isRequesting = false
           this.requestList = []
+          this.requestList.push(...this.waitList)
+          this.waitList = []
         } else {
           // 对当前请求的参数列表进行添加retry的操作 添加完以后，在请求期间触发的埋点参数 放入requestList中
           this._increaseParamsRetry()
@@ -171,7 +200,7 @@ export default class trackRequest {
   // 删除重试次数大于3次的埋点数据
   _deleteOverTryParam(): void {
     this.requestList = this.requestList.filter((item: trackMutiParams) => {
-      return item.retry <= 2
+      return item.retry < this.retryLimit
     })
   }
   // 获取当前路由
@@ -185,7 +214,7 @@ export default class trackRequest {
     } else {
       // web端支持
       this.params.url = window.location.pathname
-      if (this.trackRouteInstance) {
+      if (this.trackRouteInstance && this.autoUrl) {
         // H
         const moduleList: string[] = this.trackRouteInstance.getModulesByPath(this.params.url)
         this.params.module = moduleList.length ? moduleList[0] : ''
@@ -200,7 +229,7 @@ export default class trackRequest {
       if (this.requestList.length > 0 && !this.isRequesting) {
         this.sendRequest()
       }
-    }, 5000) // 5秒发送一次请求
+    }, this.intervalTime) // 5秒发送一次请求
   }
   // 外部调用，用于关闭程序时发送
   clearAllRequests() {

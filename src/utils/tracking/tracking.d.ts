@@ -55,7 +55,7 @@ export interface trackErrorParams { // 错误
   url?:string
 }
 
-export interface trackStayParams { // 错误
+export interface trackStayParams { // 停留
   url?: string
   startTime: Date
   endTime: Date
@@ -64,3 +64,6 @@ export interface trackStayParams { // 错误
   sub_modules?: string
   url?:string
 }
+// 访问
+export interface trackAccessParams extends trackStayParams
+{}

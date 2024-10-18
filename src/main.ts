@@ -27,7 +27,6 @@ import '@/plugins/animate.css'
 
 // 路由
 import router, { setupRouter } from '@/router'
-import { useUserStore } from '@/store/modules/user'
 
 import useTrack from '@/utils/tracking/useTrack'
 
@@ -51,6 +50,7 @@ import Logger from '@/utils/Logger'
 
 import VueDOMPurifyHTML from 'vue-dompurify-html' // 解决v-html 的安全隐患
 import { sendTracking } from './api/track/manual'
+import { tr } from 'element-plus/es/locale'
 
 // 创建实例
 const setupAll = async () => {
@@ -69,8 +69,18 @@ const setupAll = async () => {
   setupRouter(app)
 
   setupAuth(app)
-  app.config.globalProperties.$useTrack =new useTrack(sendTracking)
-  app.config.globalProperties.$useTrack.setApp(app)
+
+  app.config.globalProperties.$useTrack = new useTrack({
+    request: sendTracking,
+    app,
+    autoClick: true, //是否开启点击事件全埋点 默认为true
+    autoError: true, //是否开启错误事件全埋点 默认为true
+    autoStay: true, //是否开启错误事件全埋点 默认为true
+    autoUrl: true, //是否开启自动通过url获取module和submodules 用于解决不同项目的路由名称问题 默认为true
+    intervalTime: 5000, //自动埋点上报间隔时间 默认为5000ms
+    retryLimit: 3, //自动埋点上报失败重试次数 默认为3次
+  })
+
   await router.isReady()
   // app.mixin(trackMixin);
   // app.config.errorHandler = (err, instance, info) => {
