@@ -50,10 +50,9 @@ import Logger from '@/utils/Logger'
 
 import VueDOMPurifyHTML from 'vue-dompurify-html' // 解决v-html 的安全隐患
 import { sendTracking } from './api/track/manual'
-import { tr } from 'element-plus/es/locale'
 
 // 创建实例
-const setupAll = async () => {
+
   const app = createApp(App)
 
   await setupI18n(app)
@@ -70,7 +69,7 @@ const setupAll = async () => {
 
   setupAuth(app)
 
-  app.config.globalProperties.$useTrack = new useTrack({
+  window.$useTrack = new useTrack({
     request: sendTracking,
     app,
     autoClick: true, //是否开启点击事件全埋点 默认为true
@@ -108,8 +107,8 @@ const setupAll = async () => {
   app.use(VueDOMPurifyHTML)
 
   app.mount('#app')
-}
 
-setupAll()
+
 
 Logger.prettyPrimary(`欢迎使用`, import.meta.env.VITE_APP_TITLE)
+export default app

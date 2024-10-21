@@ -4,8 +4,7 @@ import { useAppStore } from '@/store/modules/app'
 import { useDesign } from '@/hooks/web/useDesign'
 import { CACHE_KEY, useCache } from '@/hooks/web/useCache'
 import routerSearch from '@/components/RouterSearch/index.vue'
-import { onBeforeUnmount, onMounted, getCurrentInstance  } from 'vue'
-import {useUserStore} from '@/store/modules/user'
+import { onBeforeUnmount, onMounted  } from 'vue'
 defineOptions({ name: 'APP' })
 
 const { getPrefixCls } = useDesign()
@@ -14,8 +13,7 @@ const appStore = useAppStore()
 const currentSize = computed(() => appStore.getCurrentSize)
 const greyMode = computed(() => appStore.getGreyMode)
 const { wsCache } = useCache()
-const { appContext } = getCurrentInstance()!;
-const useTrack = appContext.config.globalProperties.$useTrack;
+const useTrack = window.$useTrack
 
 // 根据浏览器当前主题设置系统主题色
 const setDefaultTheme = () => {

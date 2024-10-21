@@ -43,7 +43,25 @@ const service: AxiosInstance = axios.create({
   timeout: request_timeout, // 请求超时时间
   withCredentials: false // 禁用 Cookie 等信息
 })
-
+const getHttpError = (config, reason, error:unknown =null) => {
+  // console.log('在请求中初始化',app)
+  if (!config.url.includes('/stat_data_adapter_war_exploded/log/reportOperationLog')) {
+    
+  const useTrack = window.$useTrack
+    if(useTrack){
+      console.log('在请求中初始化','http')
+    }
+    useTrack && useTrack.setErrorParams({
+      // url: to.path,
+      eventRes: reason,
+      params: JSON.stringify({
+        params: {},
+        data: { error }
+      }),
+      remarks: ''
+    })
+  }
+}
 // request拦截器
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfigWithRaw) => {
@@ -85,26 +103,30 @@ service.interceptors.request.use(
         config.url = config.url + '?' + paramsStr
       }
     }
-    config.url =
-      config.url == '/stat_data_adapter_war_exploded/log/reportOperationLog'
-        ? '/abs' + config.url
-        : base_url + config.url
+    if(!config.url?.includes('http')){
+      config.url = base_url + config.url
+    }
     return config
   },
   (error: AxiosError) => {
     // Do something with request error
     console.log(error) // for debug
+    // 埋点
+    getHttpError(config,'请求前错误',error)
     return Promise.reject(error)
   }
 )
 
 // response 拦截器
+
 service.interceptors.response.use(
   async (response: AxiosResponse<any>) => {
     let { data } = response
     const config:InternalAxiosRequestConfigWithRaw = response.config
+
     if (!data) {
       // 返回“[HTTP]请求没有返回值”;
+          // 埋点
       throw new Error()
     }
     const { t } = useI18n()
@@ -121,6 +143,11 @@ service.interceptors.response.use(
       data = await new Response(response.data).json()
     }
     const code = data.code || result_code
+    if(config.url?.includes('system/user/page')){
+
+      // code = 404
+    }
+    
     // 获取错误信息
     const msg = data.msg || errorCode[code] || errorCode['default']
     if (ignoreMsgs.indexOf(msg) !== -1) {
@@ -191,7 +218,7 @@ service.interceptors.response.use(
       } else {
         ElNotification.error({ title: msg })
       }
-      return Promise.reject('error')
+      return Promise.reject('系统未知错误，请反馈给管理员'+'code='+code)
     } else if (config.isRaw) {
       return response
     }
@@ -200,7 +227,8 @@ service.interceptors.response.use(
     }
   },
   (error: AxiosError) => {
-    console.log('err' + error) // for debug
+    console.log('debugger')
+    console.log('err' + error,'debuger') // for debug
     let { message } = error
     const { t } = useI18n()
     if (message === 'Network Error') {
@@ -211,6 +239,7 @@ service.interceptors.response.use(
       message = t('sys.api.apiRequestFailed') + message.substr(message.length - 3)
     }
     ElMessage.error(message)
+    getHttpError(config, message, error)
     return Promise.reject(error)
   }
 )
