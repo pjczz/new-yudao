@@ -1,128 +1,132 @@
 ├─📄 [readme.md](http://readme.md/) — 说明文件
-├─📄 tracking.d.ts —ts 类型文件
-├─📄 trackRequest.ts —埋点请求的 SDK，可迁移到其他项目
-├─📄 trackRoute.ts —工具类，提供将 ruoyi-pro 的 url 转换为路由获取模块和子模块的方法
-└─📄 useTrack.ts —提供埋点的前端交互类，在 ruoyipro 中可实现全埋点
+├─📄 tracking.d.ts —ts类型文件
+├─📄 trackRequest.ts —埋点请求的SDK，可迁移到其他项目
+├─📄 trackRoute.ts —工具类，提供将ruoyi-pro的url转换为路由获取模块和子模块的方法
+└─📄 useTrack.ts —提供埋点的前端交互类，在ruoyipro中可实现全埋点
 
 ## 1、准备工作
 
 ### 1.1 环境变量
 
 ```jsx
-VITE_TRACK_PROJECT = 'gx' //共享
-VITE_TRACK_SYSTEM = 'user_mp' //用户微信小程序端
-VITE_SIGNATURE_KEY = '去找后端要key'
+VITE_TRACK_PROJECT='gx' //共享
+VITE_TRACK_SYSTEM='user_mp' //用户微信小程序端
+VITE_SIGNATURE_KEY='去找后端要key'
 ```
 
-### 1.2 接口签名
+### 1.2接口签名
 
 ```jsx
 import SHA256 from 'crypto-js/sha256'
 // 生成签名
 export function getSignature(data) {
-	// 获取当前时间戳
-	const timestamp = new Date().getTime()
-	// 示例密钥（实际应用中应安全存储）
-	const hmacKey = import.meta.env.VITE_SIGNATURE_KEY // HMAC 密钥
-	const dataStr = data ? JSON.stringify(data) : ''
-	const uuid = generateUUID()
+  // 获取当前时间戳
+  const timestamp = new Date().getTime()
+  // 示例密钥（实际应用中应安全存储）
+  const hmacKey = import.meta.env.VITE_SIGNATURE_KEY // HMAC 密钥
+  const dataStr = data ? JSON.stringify(data) : ''
+  const uuid = generateUUID()
 
-	// 构建需要签名的字符串（加密数据 + 时间戳）
-	const dataToSign = dataStr + '_t=' + timestamp + '_u=' + uuid + hmacKey
-	const signature = SHA256(dataToSign).toString()
-	const headers = {
-		_t: timestamp,
-		_s: signature,
-		_u: uuid
-	}
-	return headers
+  // 构建需要签名的字符串（加密数据 + 时间戳）
+  const dataToSign = dataStr + '_t=' + timestamp + '_u='+ uuid + hmacKey
+  const signature = SHA256(dataToSign).toString()
+  const headers = {
+    _t:timestamp,
+    _s:signature,
+    _u:uuid
+  }
+  return headers
 }
 // 生成uuid
 export const generateUUID = () => {
-	if (typeof crypto === 'object') {
-		if (typeof crypto.randomUUID === 'function') {
-			return crypto.randomUUID()
-		}
-		if (typeof crypto.getRandomValues === 'function' && typeof Uint8Array === 'function') {
-			const callback = (c: any) => {
-				const num = Number(c)
-				return (num ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (num / 4)))).toString(16)
-			}
-			return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, callback)
-		}
-	}
-	let timestamp = new Date().getTime()
-	let performanceNow = (typeof performance !== 'undefined' && performance.now && performance.now() * 1000) || 0
-	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-		let random = Math.random() * 16
-		if (timestamp > 0) {
-			random = (timestamp + random) % 16 | 0
-			timestamp = Math.floor(timestamp / 16)
-		} else {
-			random = (performanceNow + random) % 16 | 0
-			performanceNow = Math.floor(performanceNow / 16)
-		}
-		return (c === 'x' ? random : (random & 0x3) | 0x8).toString(16)
-	})
+  if (typeof crypto === 'object') {
+    if (typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID()
+    }
+    if (typeof crypto.getRandomValues === 'function' && typeof Uint8Array === 'function') {
+      const callback = (c: any) => {
+        const num = Number(c)
+        return (num ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (num / 4)))).toString(
+          16
+        )
+      }
+      return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, callback)
+    }
+  }
+  let timestamp = new Date().getTime()
+  let performanceNow =
+    (typeof performance !== 'undefined' && performance.now && performance.now() * 1000) || 0
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    let random = Math.random() * 16
+    if (timestamp > 0) {
+      random = (timestamp + random) % 16 | 0
+      timestamp = Math.floor(timestamp / 16)
+    } else {
+      random = (performanceNow + random) % 16 | 0
+      performanceNow = Math.floor(performanceNow / 16)
+    }
+    return (c === 'x' ? random : (random & 0x3) | 0x8).toString(16)
+  })
 }
 ```
 
-## 2、在 ruoyipro 中使用该项目 并使用全埋点（elementui+vue3）
+## 2、在ruoyipro中使用该项目 并使用全埋点（elementui+vue3）
 
 ```jsx
-// 可以在store中初始化，好处是可以在js文件中简单调用
-app.config.globalProperties.$useTrack = new useTrack({
-	request: sendTracking, // 返回值为promise的请求函数
-	app, //vue实例 vue2传入vue
-	autoClick: true, //是否开启点击事件全埋点 默认为true 仅支持elementui
-	autoError: true, //是否开启错误事件全埋点 默认为true
-	autoStay: true, //是否开启错误事件全埋点 默认为true
-	autoUrl: true, //是否开启自动通过url获取module和submodules 用于解决不同项目的路由名称问题 默认为true
-	intervalTime: 5000, //自动埋点上报间隔时间 默认为5000ms
-	retryLimit: 3 //自动埋点上报失败重试次数 默认为3次
-})
-// 初始化 app.vue或其他位置 获取到uid和tenantId以后 租户id（非多租户的系统 租户id统一为0）
-
-useTrack.setParams({ uid: '2312311', tenantId: '123213' })
+// 统一挂载到window上方便全局使用
+window.$useTrack = new useTrack({
+    request: sendTracking, // 返回值为promise的请求函数
+    app, //vue实例 vue2传入vue
+    autoClick: true, //是否开启点击事件全埋点 默认为true 仅支持elementui 
+    autoError: true, //是否开启错误事件全埋点 默认为true
+    autoStay: true, //是否开启错误事件全埋点 默认为true
+    autoUrl: true, //是否开启自动通过url获取module和submodules 用于解决不同项目的路由名称问题 默认为true
+    intervalTime: 5000, //自动埋点上报间隔时间 默认为5000ms
+    retryLimit:3, //自动埋点上报失败重试次数 默认为3次
+  })
+  // 初始化 尽量在store中调用 登录后获取uid和tenantId 或者在回调函数中赋值  租户id（非多租户的系统 租户id统一为0）
+  
+  useTrack.setParams({ uid: '2312311', tenantId: '123213' })
+  
 ```
 
-## 3、在 web 其他后台项目使用
+## 3、在web其他后台项目使用
 
 ### 3.1 初始化
 
 ```jsx
-// import useTrack from ...
-app.config.globalProperties.$useTrack = new useTrack({
-	request: sendTracking, // 返回值为promise的请求函数
-	app,
-	autoClick: false, //建议关闭 默认为true
-	autoError: true, //是否开启错误事件全埋点 默认为true
-	autoStay: true, //是否开启错误事件全埋点 默认为true
-	autoUrl: false, //建议关闭 用于解决不同项目的路由名称问题 默认为true
-	intervalTime: 5000, //自动埋点上报间隔时间 默认为5000ms
-	retryLimit: 3 //自动埋点上报失败重试次数 默认为3次
-})
-// 初始化 app.vue或其他位置 获取到uid和tenantId以后
-
-useTrack.setParams({ uid: '2312311', tenantId: '123213' })
+ 
+// 统一挂载在window上  方便全局的任意模块调用
+window.$useTrack = new useTrack({
+    request: sendTracking, // 返回值为promise的请求函数
+    app,
+    autoClick: false, //建议关闭 默认为true
+    autoError: true, //是否开启错误事件全埋点 默认为true
+    autoStay: true, //是否开启错误事件全埋点 默认为true
+    autoUrl: false, //建议关闭 用于解决不同项目的路由名称问题 默认为true
+    intervalTime: 5000, //自动埋点上报间隔时间 默认为5000ms
+    retryLimit:3, //自动埋点上报失败重试次数 默认为3次
+  })
+  // 初始化 尽量在store中调用 登录后获取uid和tenantId 或者在回调函数中赋值
+  
+  useTrack.setParams({ uid: '2312311', tenantId: '123213' })
+  
 ```
 
 ```jsx
 // 批量埋点方法
 
 export const sendTracking = async (data: trackParams[]) => {
-	// isRaw代表返回原始数据 不直接返回data
 
-	return await request.post({
-		url: 'http://47.99.177.100:10998/stat_data_adapter-1.0.0/log/reportOperationLog',
-		data,
-		isRaw: 'true'
-	})
+// isRaw代表返回原始数据 不直接返回data
+
+return await request.post({ url: 'http://47.99.177.100:10998/stat_data_adapter-1.0.0/log/reportOperationLog', data , isRaw:'true'})
+
 }
-useTrackIntance: new useTrack(sendTracking), sendTracking为请求函数
+
 ```
 
-### 3.2 手动调用 SDK
+### 3.2 手动调用SDK
 
 ```jsx
 // 根据需求 直接手动在部分页面或全局调用该方法
@@ -169,35 +173,90 @@ useTrack.setAccessParams({
   url?:string // 页面地址
 
   })
+// 使用getCurrentInstance获取vue挂载的全局变量
+const { appContext } = getCurrentInstance()!;
+const useTrack = appContext.config.globalProperties.$useTrack
+if (useTrack) {
+	useTrack.setParams({ uid: userInfo.getUser.id, tenantId: '0' })
+}
+```
 
+4、捕获所有的错误
+
+```jsx
+// SDK为vue提供了两个错误捕获类型 如果需要捕获http请求中发生的错误 则需要手动添加以下代码
+1、vue的错误捕获
+2、promise的未捕获错误收集
+剩余错误捕获是promise中，其中最多的错误发生在http请求的请求拦截器中
+
+//参考函数
+const getHttpError = (config, reason, error:unknown =null) => {
+  // console.log('在请求中初始化',app)
+  if (!config.url.includes('/stat_data_adapter_war_exploded/log/reportOperationLog')) {
+    
+  const useTrack = window.$useTrack
+    if(useTrack){
+      console.log('在请求中初始化','http')
+    }
+    useTrack && useTrack.setErrorParams({
+      // url: to.path,
+      eventRes: reason,
+      params: JSON.stringify({
+        params: {},
+        data: { error }
+      }),
+      remarks: ''
+    })
+  }
+}
+// 异常说明
+//如果在拦截器内部自定义了各种错误处理，并且将他们抛出，使用promise.reject(msg)会抛出到全局的
+//未捕获异常中 无需处理 如果使用的同步throw 则会被axios异常捕获与下述条件在一起处理
+// 类似404的错误会直接触发axios的异常捕获 需要在此处的异常捕获中添加上述代码
+      (error: AxiosError) => {
+    console.log('debugger')
+    console.log('err' + error,'debuger') // for debug
+    let { message } = error
+    const { t } = useI18n()
+    if (message === 'Network Error') {
+      message = t('sys.api.errorMessage')
+    } else if (message.includes('timeout')) {
+      message = t('sys.api.apiTimeoutMessage')
+    } else if (message.includes('Request failed with status code')) {
+      message = t('sys.api.apiRequestFailed') + message.substr(message.length - 3)
+    }
+    ElMessage.error(message)
+    ***getHttpError(config, message, error) // 关键函数调用***
+    return Promise.reject(error)
+  }
 ```
 
 ## 其他
 
-### 1、目前页面停留时间采用监听 url 的方案 仅支持新项目 或每个路由都配置 meta:{name:xxx}的项目
+### 1、目前页面停留时间采用监听url的方案 仅支持新项目 或每个路由都配置meta:{name:xxx}的项目
 
 ### 2、已经支持自动监听按钮
 
-如果按钮在 table 里 会将 table 的当前列和表头数据上传
+ 如果按钮在table里 会将table的当前列和表头数据上传
 
-如果按钮在 dialog 弹窗里 会将 dialog 的 label 和对应的 input textArea 值上传
+ 如果按钮在dialog弹窗里 会将dialog的label和对应的input textArea 值上传 
 
-注意!类似 select 的值无法通过 dom 跟踪，只会返回空字符串
+注意!类似select的值无法通过dom跟踪，只会返回空字符串
 
-### 3、目前手动和自动只能选择一个，后续可以通过设计 auto 字段进行处理或者在 params 中{params:{auto：true}
+### 3、目前手动和自动只能选择一个，后续可以通过设计auto字段进行处理或者在params中{params:{auto：true}
 
 ### 4、如果请求函数方法被二次封装必须确认以下事项
 
-1、如果设置 baseUrl 请修改为判断是否有 http 按条件添加 接口路径支持跨域直接使用即可
+1、如果设置baseUrl请修改为判断是否有http 按条件添加  接口路径支持跨域直接使用即可
 
 ```jsx
 // baseUrl为基本路径
 if (!config.url.includes('http')) {
-	config.url = base_url + config.url
-}
+				config.url = base_url + config.url
+			}
 ```
 
-2、如果接口的数据返回也被二次封装，请按 isRaw=’true’ 进行判断返回原始相应体
+2、如果接口的数据返回也被二次封装，请按isRaw=’true’  进行判断返回原始相应体
 
 ```jsx
 // 示例代码
@@ -216,19 +275,21 @@ post: async <T = any>(option: any) => {
 ```jsx
 // 如果请求头也被二次封装 无法根据配置写入 请手动添加
 return service({
-	url: flag ? `${url}&t=${timeStamp}` : url,
-	method,
-	params: flag ? params : { ...params, t: timeStamp },
-	data,
-	...config,
-	responseType: responseType,
-	headers: {
-		'Content-Type': headersType || default_headers,
-		A: encryptBase64(timeStamp),
-		B: encryptMD5(timeStamp, url),
-		_t: option?.headers?._t || '',
-		_s: option?.headers?._s || '',
-		_u: option?.headers?._u || ''
-	}
-})
+		url: flag ? `${url}&t=${timeStamp}` : url,
+		method,
+		params: flag ? params : { ...params, t: timeStamp },
+		data,
+		...config,
+		responseType: responseType,
+		headers: {
+			'Content-Type': headersType || default_headers,
+			A: encryptBase64(timeStamp),
+			B: encryptMD5(timeStamp, url),
+			_t: option?.headers?._t || '',
+			_s: option?.headers?._s || '',
+			_u: option?.headers?._u || ''
+		}
+	})
 ```
+
+📦build, 👷ci, 📝docs, 🌟feat, 🐛fix, 🚀perf, 🌠refactor, 🔂revert, 💎style, 🚨test

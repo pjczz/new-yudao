@@ -4,7 +4,7 @@ import { useAppStore } from '@/store/modules/app'
 import { useDesign } from '@/hooks/web/useDesign'
 import { CACHE_KEY, useCache } from '@/hooks/web/useCache'
 import routerSearch from '@/components/RouterSearch/index.vue'
-import { onBeforeUnmount, onMounted  } from 'vue'
+
 defineOptions({ name: 'APP' })
 
 const { getPrefixCls } = useDesign()
@@ -13,7 +13,7 @@ const appStore = useAppStore()
 const currentSize = computed(() => appStore.getCurrentSize)
 const greyMode = computed(() => appStore.getGreyMode)
 const { wsCache } = useCache()
-const useTrack = window.$useTrack
+
 
 // 根据浏览器当前主题设置系统主题色
 const setDefaultTheme = () => {
@@ -24,21 +24,6 @@ const setDefaultTheme = () => {
   appStore.setIsDark(isDarkTheme)
 }
 setDefaultTheme()
-onMounted(() => {
-  
-  useTrack.setParams({ uid: '2312311', tenantId: '123213' })
-  
-  
-  // window.addEventListener('click', function (e) {
-  //   console.log(e)
-  // })
-  
-})
-onBeforeUnmount(() => {
-  // app销毁时清除所有请求
-  
-  
-})
 
 </script>
 <template>
