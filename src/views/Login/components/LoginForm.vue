@@ -1,66 +1,53 @@
 <template>
   <el-form
-    v-show="getShow"
-    ref="formLogin"
-    :model="loginData.loginForm"
-    :rules="LoginRules"
-    class="login-form"
-    label-position="top"
-    label-width="120px"
-    size="large"
-  >
-  <el-col :span="24">
+v-show="getShow" ref="formLogin" :model="loginData.loginForm" :rules="LoginRules" class="login-form"
+    label-position="top" label-width="120px" size="large">
     <el-col :span="24">
+      <el-col :span="24">
         <el-form-item>
           <!-- <LoginFormTitle style="width: 100%" /> -->
-           <span class="enter-x mb-3 text-center text-2xl font-bold xl:text-center xl:text-3xl">{{ t('login.fiftyFivekgCloud') }}</span>
+          <span class="enter-x mb-3 text-center text-2xl font-bold xl:text-center xl:text-3xl">{{
+            t('login.fiftyFivekgCloud') }}</span>
         </el-form-item>
       </el-col>
-        <el-form-item>
-              <div
-                class=" text-[16px] font-bold relative color-[#A3A4AC] mr-[20px] cursor-pointer"
-                :class="{active: getLoginState === LoginStateEnum.LOGIN}"
-                @click="setLoginState(LoginStateEnum.LOGIN)"
-              >{{ t('common.password') }}</div>
-              <div
-                class=" text-[16px] font-bold relative color-[#A3A4AC] cursor-pointer"
-                                :class="{active: getLoginState === LoginStateEnum.MOBILE}"
-                @click="setLoginState(LoginStateEnum.MOBILE)"
-              >{{t('common.verifycode')}}</div>
-        </el-form-item>
-      </el-col>
+      <el-form-item>
+        <div
+class=" text-[16px] font-bold relative color-[#A3A4AC] mr-[20px] cursor-pointer"
+          :class="{ active: getLoginState === LoginStateEnum.LOGIN }" @click="setLoginState(LoginStateEnum.LOGIN)">{{
+            t('common.password') }}</div>
+        <div
+class=" text-[16px] font-bold relative color-[#A3A4AC] cursor-pointer"
+          :class="{ active: getLoginState === LoginStateEnum.MOBILE }" @click="setLoginState(LoginStateEnum.MOBILE)">
+          {{ t('common.verifycode') }}</div>
+      </el-form-item>
+    </el-col>
     <el-row style="margin-right: -10px; margin-left: -10px">
 
       <el-col :span="24" style="padding-right: 10px; padding-left: 10px">
         <el-form-item v-if="loginData.tenantEnable === 'true' && false" prop="tenantName">
           <el-input
-            v-model="loginData.loginForm.tenantName"
-            :placeholder="t('login.tenantNamePlaceholder')"
-            :prefix-icon="iconHouse"
-            link
-            type="primary"
-          />
+v-model="loginData.loginForm.tenantName" :placeholder="t('login.tenantNamePlaceholder')"
+            :prefix-icon="iconHouse" link type="primary" />
         </el-form-item>
       </el-col>
       <el-col :span="24" style="padding-right: 10px; padding-left: 10px">
         <el-form-item prop="username">
-          <el-input
-            v-model="loginData.loginForm.username"
-            :placeholder="t('login.usernamePlaceholder')"
-            :prefix-icon="iconAvatar"
-          />
+          <div class="deep-input w-full">
+            <el-input
+class="input-class-round" v-model="loginData.loginForm.username"
+              :placeholder="t('login.usernamePlaceholder')" />
+          </div>
+
         </el-form-item>
       </el-col>
       <el-col :span="24" style="padding-right: 10px; padding-left: 10px">
         <el-form-item prop="password">
-          <el-input
-            v-model="loginData.loginForm.password"
-            :placeholder="t('login.passwordPlaceholder')"
-            :prefix-icon="iconLock"
-            show-password
-            type="password"
-            @keyup.enter="getCode()"
-          />
+          <div class="deep-input w-full">
+            <el-input
+class="input-class-round " v-model="loginData.loginForm.password"
+              :placeholder="t('login.passwordPlaceholder')" show-password type="password" @keyup.enter="getCode()" />
+          </div>
+
         </el-form-item>
       </el-col>
       <!-- <el-col
@@ -83,23 +70,13 @@
       <el-col :span="24" style="padding-right: 10px; padding-left: 10px">
         <el-form-item>
           <XButton
-            :loading="loginLoading"
-            :title="t('login.login')"
-            class="w-[100%]  mt-[20px]"
-            type="primary"
-            color="var(--login-button-color)"
-             :round="true"
-            @click="getCode()"
-          />
+:loading="loginLoading" :title="t('login.login')" class="w-[100%]  mt-[20px]" type="primary"
+            color="var(--login-button-color)" :round="true" @click="getCode()" />
         </el-form-item>
       </el-col>
       <Verify
-        ref="verify"
-        :captchaType="captchaType"
-        :imgSize="{ width: '400px', height: '200px' }"
-        mode="pop"
-        @success="handleLogin"
-      />
+ref="verify" :captchaType="captchaType" :imgSize="{ width: '400px', height: '200px' }" mode="pop"
+        @success="handleLogin" />
 
     </el-row>
   </el-form>
@@ -300,11 +277,11 @@ onMounted(() => {
   }
 }
 
-.active{
+.active {
   color: var(--login-button-color);
 }
 
-.active::after{
+.active::after {
   position: absolute;
   bottom: 0;
   left: 3%;
@@ -326,5 +303,44 @@ onMounted(() => {
     vertical-align: middle;
     cursor: pointer;
   }
+}
+</style>
+<style lang="scss">
+.deep-input {
+  border-radius: 16px;
+}
+
+.input-class-round {
+  display: flex;
+  align-items: center;
+}
+
+.input-class-round .el-input-group__prepend {
+  border: 0;
+  border-radius: 16px;
+  box-shadow: 0 0 0 0;
+}
+
+.input-class-round .el-input-group__prepend {
+  border: 0;
+  border-radius: 30px;
+  box-shadow: 0 0 0 0;
+}
+
+.input-class-round .el-input__inner {
+  padding-left: 20px;
+}
+
+.input-class-round .el-input__wrapper {
+  background: #EEF0F8;
+  border: 0;
+  border-radius: 16px;
+  box-shadow: 0 0 0 0;
+}
+
+.input-class-round .el-input-group__append {
+  border: 0;
+  border-radius: 30px;
+  box-shadow: 0 0 0 0;
 }
 </style>

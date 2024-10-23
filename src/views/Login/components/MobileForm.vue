@@ -38,9 +38,12 @@ v-model="loginData.loginForm.tenantName" :placeholder="t('login.tenantNamePlaceh
       <!-- 手机号 -->
       <el-col :span="24" style="padding-right: 10px; padding-left: 10px">
         <el-form-item prop="mobileNumber">
-          <el-input
-v-model="loginData.loginForm.mobileNumber" :placeholder="t('login.mobileNumberPlaceholder')"
-            :prefix-icon="iconCellphone" />
+          <div class="deep-input w-full">
+            <el-input
+class="input-class-round" v-model="loginData.loginForm.mobileNumber"
+              :placeholder="t('login.mobileNumberPlaceholder')" />
+          </div>
+
         </el-form-item>
       </el-col>
       <!-- 验证码 -->
@@ -48,16 +51,19 @@ v-model="loginData.loginForm.mobileNumber" :placeholder="t('login.mobileNumberPl
         <el-form-item prop="code">
           <el-row :gutter="5" justify="space-between" style="width: 100%">
             <el-col :span="18">
-              <el-input
-v-model="loginData.loginForm.code" :placeholder="t('login.codePlaceholder')"
-                :prefix-icon="iconCircleCheck">
-                <!-- <el-button class="w-[100%]"> -->
+              <div class="deep-input w-full">
+                <el-input
+class="input-class-round" v-model="loginData.loginForm.code"
+                  :placeholder="t('login.codePlaceholder')">
+                  <!-- <el-button class="w-[100%]"> -->
 
-              </el-input>
+                </el-input>
+              </div>
+
               <!-- </el-button> -->
             </el-col>
             <el-col :span="6">
-              <div class="bg-[var(--login-button-color)] h-full text-center rounded-[10px]">
+              <div class="bg-[var(--login-button-color)] h-full text-center rounded-[16px]">
                 <span
 v-if="mobileCodeTimer <= 0" class="getMobileCode color-white" style="cursor: pointer"
                   @click="getSmsCode">
@@ -74,7 +80,7 @@ v-if="mobileCodeTimer <= 0" class="getMobileCode color-white" style="cursor: poi
       </el-col>
       <!-- 登录按钮 / 返回按钮 -->
       <el-col class="rounded-[10px] mt-[20px]" :span="24" style="padding-right: 10px; padding-left: 10px">
-        <el-form-item >
+        <el-form-item>
           <XButton
 :loading="loginLoading" :title="t('login.login')" color="var(--login-button-color)" :round="true"
             class="w-[100%] bg-black  " @click="signIn()" />
