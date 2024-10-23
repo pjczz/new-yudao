@@ -15,7 +15,8 @@ const props = defineProps({
   circle: propTypes.bool.def(false),
   round: propTypes.bool.def(false),
   plain: propTypes.bool.def(false),
-  onClick: { type: Function as PropType<(...args) => any>, default: null }
+  onClick: { type: Function as PropType<(...args) => any>, default: null },
+  color: propTypes.string.def(''),
 })
 const getBindValue = computed(() => {
   const delArr: string[] = ['title', 'preIcon', 'postIcon', 'onClick']
@@ -31,7 +32,7 @@ const getBindValue = computed(() => {
 </script>
 
 <template>
-  <el-button v-bind="getBindValue" @click="onClick">
+  <el-button v-bind="getBindValue" @click="onClick" :color="color">
     <Icon v-if="preIcon" :icon="preIcon" class="mr-1px" />
     {{ title ? title : '' }}
     <Icon v-if="postIcon" :icon="postIcon" class="mr-1px" />

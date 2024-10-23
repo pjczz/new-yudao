@@ -1,94 +1,86 @@
 <template>
   <el-form
-    v-show="getShow"
-    ref="formSmsLogin"
-    :model="loginData.loginForm"
-    :rules="rules"
-    class="login-form"
-    label-position="top"
-    label-width="120px"
-    size="large"
-  >
-    <el-row style="margin-right: -10px; margin-left: -10px">
-      <!-- 租户名 -->
-      <el-col :span="24" style="padding-right: 10px; padding-left: 10px">
+v-show="getShow" ref="formSmsLogin" :model="loginData.loginForm" :rules="rules" class="login-form"
+    label-position="top" label-width="120px" size="large">
+    <el-col :span="24">
+      <el-col :span="24">
         <el-form-item>
-          <LoginFormTitle style="width: 100%" />
+          <!-- <LoginFormTitle style="width: 100%" /> -->
+          <span class="enter-x mb-3 text-center text-2xl font-bold xl:text-center xl:text-3xl">{{
+            t('login.fiftyFivekgCloud') }}</span>
         </el-form-item>
       </el-col>
+      <el-form-item>
+        <div
+class=" text-[16px] font-bold relative color-[#A3A4AC] mr-[20px] cursor-pointer"
+          :class="{ active: getLoginState === LoginStateEnum.LOGIN }" @click="setLoginState(LoginStateEnum.LOGIN)">{{
+            t('common.password') }}</div>
+        <div
+class=" text-[16px] font-bold relative color-[#A3A4AC] cursor-pointer"
+          :class="{ active: getLoginState === LoginStateEnum.MOBILE }" @click="setLoginState(LoginStateEnum.MOBILE)">
+          {{ t('common.verifycode') }}</div>
+      </el-form-item>
+    </el-col>
+    <el-row style="margin-right: -10px; margin-left: -10px">
+      <!-- 租户名 -->
+      <!-- <el-col :span="24" style="padding-right: 10px; padding-left: 10px">
+        <el-form-item>
+          <span class="enter-x mb-3 text-center text-2xl font-bold xl:text-center xl:text-3xl">{{ t('login.loginOrRegister') }}</span>
+        </el-form-item>
+      </el-col> -->
       <el-col :span="24" style="padding-right: 10px; padding-left: 10px">
-        <el-form-item v-if="loginData.tenantEnable === 'true'" prop="tenantName">
+        <el-form-item v-if="loginData.tenantEnable === 'true' && false" prop="tenantName">
           <el-input
-            v-model="loginData.loginForm.tenantName"
-            :placeholder="t('login.tenantNamePlaceholder')"
-            :prefix-icon="iconHouse"
-            type="primary"
-            link
-          />
+v-model="loginData.loginForm.tenantName" :placeholder="t('login.tenantNamePlaceholder')"
+            :prefix-icon="iconHouse" type="primary" link />
         </el-form-item>
       </el-col>
       <!-- 手机号 -->
       <el-col :span="24" style="padding-right: 10px; padding-left: 10px">
         <el-form-item prop="mobileNumber">
           <el-input
-            v-model="loginData.loginForm.mobileNumber"
-            :placeholder="t('login.mobileNumberPlaceholder')"
-            :prefix-icon="iconCellphone"
-          />
+v-model="loginData.loginForm.mobileNumber" :placeholder="t('login.mobileNumberPlaceholder')"
+            :prefix-icon="iconCellphone" />
         </el-form-item>
       </el-col>
       <!-- 验证码 -->
       <el-col :span="24" style="padding-right: 10px; padding-left: 10px">
         <el-form-item prop="code">
           <el-row :gutter="5" justify="space-between" style="width: 100%">
-            <el-col :span="24">
+            <el-col :span="18">
               <el-input
-                v-model="loginData.loginForm.code"
-                :placeholder="t('login.codePlaceholder')"
-                :prefix-icon="iconCircleCheck"
-              >
+v-model="loginData.loginForm.code" :placeholder="t('login.codePlaceholder')"
+                :prefix-icon="iconCircleCheck">
                 <!-- <el-button class="w-[100%]"> -->
-                <template #append>
-                  <span
-                    v-if="mobileCodeTimer <= 0"
-                    class="getMobileCode"
-                    style="cursor: pointer"
-                    @click="getSmsCode"
-                  >
-                    {{ t('login.getSmsCode') }}
-                  </span>
-                  <span v-if="mobileCodeTimer > 0" class="getMobileCode" style="cursor: pointer">
-                    {{ mobileCodeTimer }}秒后可重新获取
-                  </span>
-                </template>
+
               </el-input>
               <!-- </el-button> -->
+            </el-col>
+            <el-col :span="6">
+              <div class="bg-[var(--login-button-color)] h-full text-center rounded-[10px]">
+                <span
+v-if="mobileCodeTimer <= 0" class="getMobileCode color-white" style="cursor: pointer"
+                  @click="getSmsCode">
+                  {{ t('login.getSmsCode') }}
+                </span>
+                <span v-if="mobileCodeTimer > 0" class="getMobileCode" style="cursor: pointer">
+                  {{ mobileCodeTimer }}秒后可重新获取
+                </span>
+
+              </div>
             </el-col>
           </el-row>
         </el-form-item>
       </el-col>
       <!-- 登录按钮 / 返回按钮 -->
-      <el-col :span="24" style="padding-right: 10px; padding-left: 10px">
-        <el-form-item>
+      <el-col class="rounded-[10px] mt-[20px]" :span="24" style="padding-right: 10px; padding-left: 10px">
+        <el-form-item >
           <XButton
-            :loading="loginLoading"
-            :title="t('login.login')"
-            class="w-[100%]"
-            type="primary"
-            @click="signIn()"
-          />
+:loading="loginLoading" :title="t('login.login')" color="var(--login-button-color)" :round="true"
+            class="w-[100%] bg-black  " @click="signIn()" />
         </el-form-item>
       </el-col>
-      <el-col :span="24" style="padding-right: 10px; padding-left: 10px">
-        <el-form-item>
-          <XButton
-            :loading="loginLoading"
-            :title="t('login.backLogin')"
-            class="w-[100%]"
-            @click="handleBackLogin()"
-          />
-        </el-form-item>
-      </el-col>
+
     </el-row>
   </el-form>
 </template>
@@ -104,6 +96,7 @@ import LoginFormTitle from './LoginFormTitle.vue'
 import { LoginStateEnum, useFormValid, useLoginState } from './useLogin'
 import { ElLoading } from 'element-plus'
 
+
 defineOptions({ name: 'MobileForm' })
 
 const { t } = useI18n()
@@ -116,7 +109,7 @@ const iconHouse = useIcon({ icon: 'ep:house' })
 const iconCellphone = useIcon({ icon: 'ep:cellphone' })
 const iconCircleCheck = useIcon({ icon: 'ep:circle-check' })
 const { validForm } = useFormValid(formSmsLogin)
-const { handleBackLogin, getLoginState } = useLoginState()
+const { handleBackLogin, getLoginState, setLoginState } = useLoginState()
 const getShow = computed(() => unref(getLoginState) === LoginStateEnum.MOBILE)
 
 const rules = {
@@ -202,7 +195,7 @@ const signIn = async () => {
       }
       push({ path: redirect.value || permissionStore.addRouters[0].path })
     })
-    .catch(() => {})
+    .catch(() => { })
     .finally(() => {
       loginLoading.value = false
       setTimeout(() => {
@@ -219,6 +212,27 @@ const signIn = async () => {
     color: var(--el-color-primary) !important;
   }
 }
+
+.active {
+  color: var(--login-button-color);
+}
+
+.active::after {
+  position: absolute;
+  bottom: 0;
+  left: 3%;
+  width: 96%;
+  height: 2px;
+  background-color: var(--login-button-color);
+  content: ""
+}
+
+:deep(.el-input) {
+  .el-input-group__append {
+    background-color: var(--login-button-color)
+  }
+}
+
 
 .smsbtn {
   margin-top: 33px;

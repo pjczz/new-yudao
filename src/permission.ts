@@ -8,13 +8,11 @@ import { usePageLoading } from '@/hooks/web/usePageLoading'
 import { useDictStoreWithOut } from '@/store/modules/dict'
 import { useUserStoreWithOut } from '@/store/modules/user'
 import { usePermissionStoreWithOut } from '@/store/modules/permission'
-import { useUserStore } from '@/store/modules/user'
 
 const { start, done } = useNProgress()
 
 const { loadStart, loadDone } = usePageLoading()
 
-let startTime = new Date()
 
 const parseURL = (
   url: string | null | undefined
@@ -63,16 +61,6 @@ const whiteList = [
 router.beforeEach(async (to, from, next) => {
   start()
   loadStart()
-    // const endTime = new Date()
-    // const userStoreTrack = useUserStore()
-    // const useTrack = userStoreTrack.getUseTrackIntance
-    // useTrack.setStayParams({
-    //   // url: to.path,
-    //   startTime,
-    //   endTime,
-    //   remarks: ''
-    // })
-    startTime = new Date()
   if (getAccessToken()) {
     if (to.path === '/login') {
       next({ path: '/' })
@@ -107,6 +95,8 @@ router.beforeEach(async (to, from, next) => {
     if (whiteList.indexOf(to.path) !== -1) {
       next()
     } else {
+      // 修复错误，在跳转后没有清除token和缓存，导致无限报错刷新token过期的问题
+      
       next(`/login?redirect=${to.fullPath}`) // 否则全部重定向到登录页
     }
   }
@@ -114,9 +104,6 @@ router.beforeEach(async (to, from, next) => {
 
 router.afterEach((to) => {
   useTitle(to?.meta?.title as string)
-
-    
-  
   done() // 结束Progress
   loadDone()
 })

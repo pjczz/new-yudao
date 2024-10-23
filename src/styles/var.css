@@ -1,6 +1,8 @@
 :root {
   --login-bg-color: #293146;
 
+  --login-bg-light-color: linear-gradient(45deg, rgb(24, 135, 186), rgb(12, 171, 241));
+
   --left-menu-max-width: 200px;
 
   --left-menu-min-width: 64px;
@@ -53,6 +55,8 @@
   --app-footer-height: 50px;
 
   --transition-time-02: 0.2s;
+  
+  --login-button-color:#244C5E;
 }
 
 .dark {

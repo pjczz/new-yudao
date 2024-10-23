@@ -143,10 +143,6 @@ service.interceptors.response.use(
       data = await new Response(response.data).json()
     }
     const code = data.code || result_code
-    if(config.url?.includes('system/user/page')){
-
-      // code = 404
-    }
     
     // 获取错误信息
     const msg = data.msg || errorCode[code] || errorCode['default']
@@ -175,11 +171,12 @@ service.interceptors.response.use(
         } catch (e) {
           // 为什么需要 catch 异常呢？刷新失败时，请求因为 Promise.reject 触发异常。
           // 2.2 刷新失败，只回放队列的请求
+          console.log(e,'ncaa')
           requestList.forEach((cb: any) => {
             cb()
           })
-          // 提示是否要登出。即不回放当前请求！不然会形成递归
-          return handleAuthorized()
+            return handleAuthorized()
+          
         } finally {
           requestList = []
           isRefreshToken = false

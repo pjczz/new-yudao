@@ -54,7 +54,9 @@ export default {
     updateTime: '更新时间',
     copy: '复制',
     copySuccess: '复制成功',
-    copyError: '复制失败'
+    copyError: '复制失败',
+    password: '密码登录',
+    verifycode: '验证码登录',
   },
   lock: {
     lockScreen: '锁定屏幕',
@@ -121,6 +123,7 @@ export default {
     password: '密码',
     code: '验证码',
     login: '登录',
+    loginOrRegister: '登录/注册',
     relogin: '重新登录',
     otherLogin: '其他登录方式',
     register: '注册',
@@ -141,7 +144,8 @@ export default {
     btnQRCode: '二维码登录',
     qrcode: '扫描二维码登录',
     btnRegister: '注册',
-    SmsSendMsg: '验证码已发送'
+    SmsSendMsg: '验证码已发送',
+    fiftyFivekgCloud:'55公斤云'
   },
   captcha: {
     verification: '请完成安全验证',
