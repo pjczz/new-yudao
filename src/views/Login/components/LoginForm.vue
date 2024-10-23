@@ -47,7 +47,6 @@ class="input-class-round" v-model="loginData.loginForm.username"
 class="input-class-round " v-model="loginData.loginForm.password"
               :placeholder="t('login.passwordPlaceholder')" show-password type="password" @keyup.enter="getCode()" />
           </div>
-
         </el-form-item>
       </el-col>
       <!-- <el-col
@@ -82,9 +81,16 @@ ref="verify" :captchaType="captchaType" :imgSize="{ width: '400px', height: '200
   </el-form>
 </template>
 <script lang="ts" setup>
-import { ElLoading } from 'element-plus'
+import { ElLoading, ElMessage } from 'element-plus'
 import LoginFormTitle from './LoginFormTitle.vue'
+import { defineProps } from 'vue';
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
+const props = defineProps({
+  agreeCheck:{
+    type: Boolean,
+    default: false
+  }
+})
 
 import { useIcon } from '@/hooks/web/useIcon'
 
@@ -139,6 +145,10 @@ const socialList = [
 
 // 获取验证码
 const getCode = async () => {
+  if(!props.agreeCheck){
+    ElMessage.error(t('login.agreeUserAgreement'))
+    return
+  }
   // 情况一，未开启：则直接登录
   if (loginData.captchaEnable === 'false') {
     await handleLogin({})
@@ -271,6 +281,8 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+
+
 :deep(.anticon) {
   &:hover {
     color: var(--el-color-primary) !important;
@@ -306,8 +318,38 @@ onMounted(() => {
 }
 </style>
 <style lang="scss">
+/* 自定义复选框颜色和圆角 */
+.custom-checkbox .el-checkbox__input {
+  /* 如果需要改变选中时的背景色 */
+  background-color: var(--login-button-color);
+  border-color: #fff; /* 自定义颜色 */
+  border-radius: 10px; /* 圆角大小 */ 
+}
+ 
+/* 自定义复选框为选中状态时的颜色 */
+.custom-checkbox .el-checkbox__input .el-checkbox__inner:hover {
+  background-color: var(--login-button-color);
+  border-color: var(--login-button-color);
+}
+ 
+/* 自定义复选框为选中状态时的对勾颜色 */
+.custom-checkbox .el-checkbox__input .el-checkbox__inner::after {
+  background-color: var(--login-button-color);
+  border-color: #fff; /* 对勾颜色 */
+}
+
+.custom-checkbox .el-checkbox__input .el-checkbox__inner{
+  background-color: #fff;
+  border-radius: 100%;
+}
+
+.el-checkbox__input.is-checked .el-checkbox__inner{
+  background-color: var(--login-button-color);
+  border-color:  var(--login-button-color);
+}
+
 .deep-input {
-  border-radius: 16px;
+  border-radius: 100%
 }
 
 .input-class-round {

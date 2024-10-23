@@ -145,7 +145,8 @@ export default {
     qrcode: '扫描二维码登录',
     btnRegister: '注册',
     SmsSendMsg: '验证码已发送',
-    fiftyFivekgCloud:'55公斤云'
+    fiftyFivekgCloud:'55公斤云',
+    agreeUserAgreement:'请先同意用户协议'
   },
   captcha: {
     verification: '请完成安全验证',

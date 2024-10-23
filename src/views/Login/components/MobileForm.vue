@@ -86,7 +86,6 @@ v-if="mobileCodeTimer <= 0" class="getMobileCode color-white" style="cursor: poi
             class="w-[100%] bg-black  " @click="signIn()" />
         </el-form-item>
       </el-col>
-
     </el-row>
   </el-form>
 </template>
@@ -94,13 +93,19 @@ v-if="mobileCodeTimer <= 0" class="getMobileCode color-white" style="cursor: poi
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 
 import { useIcon } from '@/hooks/web/useIcon'
-
+import { defineProps } from 'vue'
 import { setTenantId, setToken } from '@/utils/auth'
 import { usePermissionStore } from '@/store/modules/permission'
 import { getTenantIdByName, sendSmsCode, smsLogin } from '@/api/login'
 import LoginFormTitle from './LoginFormTitle.vue'
 import { LoginStateEnum, useFormValid, useLoginState } from './useLogin'
-import { ElLoading } from 'element-plus'
+import { ElLoading, ElMessage } from 'element-plus'
+const props = defineProps({
+  agreeCheck:{
+    type: Boolean,
+    default: false
+  }
+})
 
 
 defineOptions({ name: 'MobileForm' })
@@ -117,7 +122,6 @@ const iconCircleCheck = useIcon({ icon: 'ep:circle-check' })
 const { validForm } = useFormValid(formSmsLogin)
 const { handleBackLogin, getLoginState, setLoginState } = useLoginState()
 const getShow = computed(() => unref(getLoginState) === LoginStateEnum.MOBILE)
-
 const rules = {
   tenantName: [required],
   mobileNumber: [required],
@@ -150,6 +154,10 @@ const smsVO = reactive({
 const mobileCodeTimer = ref(0)
 const redirect = ref<string>('')
 const getSmsCode = async () => {
+  if(!props.agreeCheck){
+    ElMessage.error(t('login.agreeUserAgreement'))
+    return
+  }
   await getTenantId()
   smsVO.smsCode.mobile = loginData.loginForm.mobileNumber
   await sendSmsCode(smsVO.smsCode).then(async () => {
@@ -182,6 +190,10 @@ const getTenantId = async () => {
 }
 // 登录
 const signIn = async () => {
+  if(!props.agreeCheck){
+    ElMessage.error(t('login.agreeUserAgreement'))
+    return
+  }
   await getTenantId()
   const data = await validForm()
   if (!data) return
@@ -213,6 +225,10 @@ const signIn = async () => {
 </script>
 
 <style lang="scss" scoped>
+a{
+  text-decoration: none;
+}
+
 :deep(.anticon) {
   &:hover {
     color: var(--el-color-primary) !important;
