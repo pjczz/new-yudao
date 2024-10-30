@@ -4,6 +4,32 @@
 ├─📄 trackRoute.ts —工具类，提供将ruoyi-pro的url转换为路由获取模块和子模块的方法
 └─📄 useTrack.ts —提供埋点的前端交互类，在ruoyipro中可实现全埋点
 
+```jsx
+// 接口的所有字段
+export interface trackParams {
+	project: string // 项目名称 如gx 共享 在环境变量中配置
+	system: string // 系统名称  如user-mp 用户端小程序端 在环境变量中配置
+	module: string // 模块名称 如用户管理模块 通过trackRoute获取
+	sub_modules: string // 子模块列表  从被点击的路由的模块为终点，包括路径上的除了祖先路由的路由模块
+	tenantId: string | null // 租户id 设置时传入
+	uid: string | null // 获取用户id时设置
+	type: number // 1 页面停留 2 点击按钮 3 异常上传 4 访问页面
+	startTime: string // 开始时间 如果不是停留 则开始时间=结束时间
+	endTime: string // 结束时间
+	eventName: string // 事件名称
+	eventRes: string //事件结果 除了错误都为success，处理错误会在这个字段写入错误内容
+	url: string // 页面地址
+	params: string // 额外参数 格式为字符串化的{params:{},data:{}}
+	remarks: string // 备注
+  platformName: string //平台名称
+  platformVersion: string // 平台版本
+  machineType: string // 机器类型
+  machineSystemVersion: string // 机器版本
+  
+}
+
+```
+
 ## 1、准备工作
 
 ### 1.1 环境变量
@@ -83,6 +109,7 @@ window.$useTrack = new useTrack({
     autoUrl: true, //是否开启自动通过url获取module和submodules 用于解决不同项目的路由名称问题 默认为true
     intervalTime: 5000, //自动埋点上报间隔时间 默认为5000ms
     retryLimit:3, //自动埋点上报失败重试次数 默认为3次
+    stayTime:2000, //页面停留时间小于2s的不会被记录
   })
   // 初始化 尽量在store中调用 登录后获取uid和tenantId 或者在回调函数中赋值  租户id（非多租户的系统 租户id统一为0）
   
@@ -130,6 +157,7 @@ return await request.post({ url: 'http://47.99.177.100:10998/stat_data_adapter-1
 
 ```jsx
 // 根据需求 直接手动在部分页面或全局调用该方法
+// 点击事件支持使用指令化 v-track-event="{xxx……}"
 
 // 记录停留时间
 useTrack.setStayParams({
@@ -233,7 +261,7 @@ const getHttpError = (config, reason, error:unknown =null) => {
 
 ## 其他
 
-### 1、目前页面停留时间采用监听url的方案 仅支持新项目 或每个路由都配置meta:{name:xxx}的项目
+### 1、目前传给接口的module 参数（模块） 仅支持新项目 或每个路由都配置meta:{name:xxx}的项目 （也就是支持后台的动态路由项目）
 
 ### 2、已经支持自动监听按钮
 
@@ -292,4 +320,13 @@ return service({
 	})
 ```
 
-📦build, 👷ci, 📝docs, 🌟feat, 🐛fix, 🚀perf, 🌠refactor, 🔂revert, 💎style, 🚨test
+4、临时加的字段
+
+```jsx
+  platformName: string //平台名称
+  platformVersion: string // 平台版本
+  machineType: string // 机器类型
+  machineSystemVersion: string // 机器版本
+```
+
+这四个字段是临时加的，暂时没有做任何适配，只在类型中加了

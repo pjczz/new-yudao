@@ -33,7 +33,11 @@ export default class trackRequest {
 		url: '',
 		params: '',
 		remarks: '',
-		retry: 0
+		retry: 0,
+    platformName: '',
+    platformVersion: '',
+    machineType: '',
+    machineSystemVersion: '',
 	}
 
 	params: trackMutiParams = Object.assign({}, this.INITPARAMS)

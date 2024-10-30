@@ -46,7 +46,7 @@
             <!-- 三方登录 -->
             <SSOLoginVue class="h-auto p-20px lt-xl:(rounded-3xl light:bg-white)" />
             <div class="text-[12px] flex items-center font-bold p-l-[20px] translate-y-[-20px]">
-              <el-checkbox class="custom-checkbox" round v-model="agreeCheck" size="large" />
+              <el-checkbox class="custom-checkbox  border-[1px]" round v-model="agreeCheck" size="large" />
               <div class="ml-[10px] color-[#B7BCC3]"
                 >我已阅读并同意
                 <a href="#" class="color-[var(--login-button-color)]">《中国移动认证服务条款》</a>和
@@ -69,6 +69,7 @@ import { ThemeSwitch } from '@/layout/components/ThemeSwitch'
 import { LocaleDropdown } from '@/layout/components/LocaleDropdown'
 
 import { LoginForm, MobileForm, QrCodeForm, RegisterForm, SSOLoginVue } from './components'
+import { eventNames } from 'process'
 
 defineOptions({ name: 'Login' })
 const agreeCheck = ref(false)

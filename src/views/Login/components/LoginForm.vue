@@ -321,7 +321,6 @@ onMounted(() => {
 /* 自定义复选框颜色和圆角 */
 .custom-checkbox .el-checkbox__input {
   /* 如果需要改变选中时的背景色 */
-  background-color: var(--login-button-color);
   border-color: #fff; /* 自定义颜色 */
   border-radius: 10px; /* 圆角大小 */ 
 }
@@ -340,6 +339,7 @@ onMounted(() => {
 
 .custom-checkbox .el-checkbox__input .el-checkbox__inner{
   background-color: #fff;
+  border: 1px solid;
   border-radius: 100%;
 }
 

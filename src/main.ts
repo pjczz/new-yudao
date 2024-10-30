@@ -50,6 +50,7 @@ import Logger from '@/utils/Logger'
 
 import VueDOMPurifyHTML from 'vue-dompurify-html' // 解决v-html 的安全隐患
 import { sendTracking } from './api/track/manual'
+import {clickTrackDirective} from './directives/trackEvent/useTrackEvent'
 
 // 创建实例
 
@@ -79,7 +80,7 @@ import { sendTracking } from './api/track/manual'
     intervalTime: 5000, //自动埋点上报间隔时间 默认为5000ms
     retryLimit: 3, //自动埋点上报失败重试次数 默认为3次
   })
-
+  app.directive('trackEvent', clickTrackDirective)
   await router.isReady()
   // app.mixin(trackMixin);
   // app.config.errorHandler = (err, instance, info) => {
