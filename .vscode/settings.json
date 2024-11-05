@@ -142,5 +142,77 @@
   },
   "terminal.integrated.scrollback": 10000,
   "nuxt.isNuxtApp": false,
-  "Codegeex.RepoIndex": true
+  "Codegeex.RepoIndex": true,
+  "GitCommitPlugin.CustomCommitType": [
+    {
+      // If there are duplicate keys, rewrite the config，otherwise add As a new configuration addition
+      "key": "build",
+      "label": "build",
+      "detail": "构建相关的改动（如改变依赖包）",
+      "icon": ""
+    },
+    {
+      // If there are duplicate keys, rewrite the config，otherwise add As a new configuration addition
+      "key": "ci",
+      "label": "ci",
+      "detail": "CI 配置相关",
+      "icon": ""
+    },
+    {
+      // If there are duplicate keys, rewrite the config，otherwise add As a new configuration addition
+      "key": "docs",
+      "label": "docs",
+      "detail": "文档变更",
+      "icon": ""
+    },
+    {
+      // If there are duplicate keys, rewrite the config，otherwise add As a new configuration addition
+      "key": "feat",
+      "label": "feat",
+      "detail": "新功能（feature）",
+      "icon": ""
+    },
+    {
+      // If there are duplicate keys, rewrite the config，otherwise add As a new configuration addition
+      "key": "fix",
+      "label": "fix",
+      "detail": "修复 Bug",
+      "icon": ""
+    },
+    {
+      // If there are duplicate keys, rewrite the config，otherwise add As a new configuration addition
+      "key": "perf",
+      "label": "perf",
+      "detail": "性能优化",
+      "icon": ""
+    },
+    {
+      // If there are duplicate keys, rewrite the config，otherwise add As a new configuration addition
+      "key": "refactor",
+      "label": "refactor",
+      "detail": "重构代码（既不修复 bug 也不添加新功能）",
+      "icon": ""
+    },
+    {
+      // If there are duplicate keys, rewrite the config，otherwise add As a new configuration addition
+      "key": "revert",
+      "label": "revert",
+      "detail": "回滚提交",
+      "icon": ""
+    },
+    {
+      // If there are duplicate keys, rewrite the config，otherwise add As a new configuration addition
+      "key": "style",
+      "label": "style",
+      "detail": "代码格式（不影响代码功能的变动）",
+      "icon": ""
+    },
+    {
+      // If there are duplicate keys, rewrite the config，otherwise add As a new configuration addition
+      "key": "test",
+      "label": "test",
+      "detail": "添加或修改测试",
+      "icon": ""
+    }
+  ],
 }

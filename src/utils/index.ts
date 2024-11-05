@@ -434,9 +434,9 @@ export function getSignature(data) {
   const dataToSign = dataStr + '_t=' + timestamp + '_u='+ uuid + hmacKey
   const signature = SHA256(dataToSign).toString()
   const headers = {
-    _t:timestamp,
-    _s:signature,
-    _u:uuid
+    timestamp,
+    signature,
+    uuid
   }
   return headers
 }

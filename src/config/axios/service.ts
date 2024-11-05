@@ -45,7 +45,7 @@ const service: AxiosInstance = axios.create({
 })
 const getHttpError = (config, reason, error:unknown =null) => {
   // console.log('在请求中初始化',app)
-  if (!config.url.includes('/stat_data_adapter_war_exploded/log/reportOperationLog')) {
+  if (!config.url.includes('/stat_data_adapter-1.0.0/log/reportOperationLog')) {
     
   const useTrack = window.$useTrack
     if(useTrack){
@@ -66,10 +66,10 @@ const getHttpError = (config, reason, error:unknown =null) => {
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfigWithRaw) => {
     // 获取时间戳和签名
-    const { _t, _s, _u } = getSignature(config.data)
-    config.headers._t = _t
-    config.headers._s = _s
-    config.headers._u = _u
+    const { timestamp, signature, uuid } = getSignature(config.data)
+    config.headers.timestamp = timestamp
+    config.headers.signature = signature
+    config.headers.uuid = uuid
     // 是否需要设置 token
     let isToken = (config!.headers || {}).isToken === false
     whiteList.some((v) => {

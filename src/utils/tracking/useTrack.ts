@@ -1,4 +1,4 @@
-import trackRequest from './trackRequest'
+import trackRequest from './track'
 import { App } from 'vue'
 export default class useTrack extends trackRequest {
   enterTime: Date = new Date()
