@@ -185,6 +185,16 @@ const remainingRouter: AppRouteRecordRaw[] = [
     }
   },
   {
+    path: '/forget',
+    component: () => import('@/views/Login/Forget.vue'),
+    name: 'Forget',
+    meta: {
+      hidden: true,
+      title: t('router.forget'),
+      noTagsView: true
+    }
+  },
+  {
     path: '/sso',
     component: () => import('@/views/Login/Login.vue'),
     name: 'SSOLogin',

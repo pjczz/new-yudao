@@ -35,6 +35,7 @@
         <Transition appear enter-active-class="animate__animated animate__bounceInRight">
           <div class="flex h-[calc(100vh-40px)] mt-[calc(50vh-337px)] max-w-[486px] flex-col">
             <img alt="" class="ml-12px h-100px w-100px" src="@/assets/imgs/logo.png" />
+            
             <!-- 账号登录 -->
             <LoginForm :agreeCheck="agreeCheck" class="h-auto p-20px lt-xl:(rounded-3xl light:bg-white)" />
             <!-- 手机登录 -->
@@ -67,7 +68,7 @@ import { useDesign } from '@/hooks/web/useDesign'
 import { useAppStore } from '@/store/modules/app'
 import { ThemeSwitch } from '@/layout/components/ThemeSwitch'
 import { LocaleDropdown } from '@/layout/components/LocaleDropdown'
-
+import router from '@/router'
 import { LoginForm, MobileForm, QrCodeForm, RegisterForm, SSOLoginVue } from './components'
 import { eventNames } from 'process'
 

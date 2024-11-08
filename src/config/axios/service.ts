@@ -45,7 +45,7 @@ const service: AxiosInstance = axios.create({
 })
 const getHttpError = (config, reason, error:unknown =null) => {
   // console.log('在请求中初始化',app)
-  if (!config.url.includes('/stat_data_adapter-1.0.0/log/reportOperationLog')) {
+  if (!config.url.includes('/adapter/log/reportOperationLog')) {
     
   const useTrack = window.$useTrack
     if(useTrack){

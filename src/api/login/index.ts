@@ -79,3 +79,13 @@ export const getCode = (data) => {
 export const reqCheck = (data) => {
   return request.postOriginal({ url: '/system/captcha/check', data })
 }
+
+// 找回密码验证
+export const reqResetPasswordBySms = (data) => {
+  return request.postOriginal({ url: '/system/auth/reset-password', data })
+}
+// 设置手机号
+export const reqResetPassword = (data) => {
+  return request.postOriginal({ url: '/system/auth/reset-password-by-sms', data })
+}
+

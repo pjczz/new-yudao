@@ -6,6 +6,7 @@ import '@/plugins/svgIcon'
 
 // 初始化多语言
 import { setupI18n } from '@/plugins/vueI18n'
+import 'unocss'
 
 // 引入状态管理
 import { setupStore } from '@/store'
@@ -39,22 +40,20 @@ import App from './App.vue'
 
 import './permission'
 
-
 // import trackMixin from '@/mixins/trackMixin'
 // import { sendTracking } from './api/track/manual'
-
-
 
 import '@/plugins/tongji' // 百度统计
 import Logger from '@/utils/Logger'
 
 import VueDOMPurifyHTML from 'vue-dompurify-html' // 解决v-html 的安全隐患
 import { sendTracking } from './api/track/manual'
-import {clickTrackDirective} from './directives/trackEvent/useTrackEvent'
+import { clickTrackDirective } from './directives/trackEvent/useTrackEvent'
 
 // 创建实例
-
-  const app = createApp(App)
+let app: any = null
+window.mount = async () => {
+  app = createApp(App)
 
   await setupI18n(app)
 
@@ -78,7 +77,7 @@ import {clickTrackDirective} from './directives/trackEvent/useTrackEvent'
     autoStay: true, //是否开启错误事件全埋点 默认为true
     autoUrl: true, //是否开启自动通过url获取module和submodules 用于解决不同项目的路由名称问题 默认为true
     intervalTime: 5000, //自动埋点上报间隔时间 默认为5000ms
-    retryLimit: 3, //自动埋点上报失败重试次数 默认为3次
+    retryLimit: 3 //自动埋点上报失败重试次数 默认为3次
   })
   app.directive('trackEvent', clickTrackDirective)
   await router.isReady()
@@ -87,7 +86,7 @@ import {clickTrackDirective} from './directives/trackEvent/useTrackEvent'
   //   // err: 错误对象
   //   // instance: 发生错误的组件实例
   //   // info: 错误的具体信息，比如生命周期钩子、渲染函数等
-  
+
   //   console.error('捕获到全局错误:', err);
   //   console.log('错误发生在组件:', instance);
   //   console.log('错误信息:', info);
@@ -101,15 +100,23 @@ import {clickTrackDirective} from './directives/trackEvent/useTrackEvent'
   //     }),
   //     remarks: ''
   //   })
-  
+
   //   // 在这里可以将错误上报到服务器
   //   // reportError(err, instance, info);
   // };
   app.use(VueDOMPurifyHTML)
 
   app.mount('#app')
-
-
+}
 
 Logger.prettyPrimary(`欢迎使用`, import.meta.env.VITE_APP_TITLE)
+
+window.unmount = () => {
+  app.unmount()
+  app = null
+}
+// 如果不在微前端环境，则直接执行mount渲染
+if (!window.__MICRO_APP_ENVIRONMENT__) {
+  window.mount()
+}
 export default app

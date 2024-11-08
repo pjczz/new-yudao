@@ -56,7 +56,7 @@ export default {
     copySuccess: '复制成功',
     copyError: '复制失败',
     password: '密码登录',
-    verifycode: '验证码登录',
+    verifycode: '验证码登录'
   },
   lock: {
     lockScreen: '锁定屏幕',
@@ -123,6 +123,8 @@ export default {
     password: '密码',
     code: '验证码',
     login: '登录',
+    next: '下一步',
+    done: '完成',
     loginOrRegister: '登录/注册',
     relogin: '重新登录',
     otherLogin: '其他登录方式',
@@ -130,6 +132,8 @@ export default {
     checkPassword: '确认密码',
     remember: '记住我',
     hasUser: '已有账号？去登录',
+    findPassword: '找回密码',
+    setNewPassword: '设置新密码',
     forgetPassword: '忘记密码?',
     tenantNamePlaceholder: '请输入租户名称',
     usernamePlaceholder: '请输入用户名',
@@ -145,8 +149,10 @@ export default {
     qrcode: '扫描二维码登录',
     btnRegister: '注册',
     SmsSendMsg: '验证码已发送',
-    fiftyFivekgCloud:'55公斤云',
-    agreeUserAgreement:'请先同意用户协议'
+    fiftyFivekgCloud: '55公斤云',
+    agreeUserAgreement: '请先同意用户协议',
+    pleaseInputPassword: '请输入密码',
+    pleaseInputCorrectPassword: '请输入正确的密码',
   },
   captcha: {
     verification: '请完成安全验证',
@@ -160,7 +166,8 @@ export default {
     socialLogin: '社交登录',
     home: '首页',
     analysis: '分析页',
-    workplace: '工作台'
+    workplace: '工作台',
+    forget: '忘记密码'
   },
   analysis: {
     newUser: '新增用户',

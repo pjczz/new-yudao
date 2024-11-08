@@ -25,6 +25,9 @@ export default ({command, mode}: ConfigEnv): UserConfig => {
         root: root,
         // 服务端渲染
         server: {
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
             port: env.VITE_PORT, // 端口号
             host: "0.0.0.0",
             open: env.VITE_OPEN === 'true',

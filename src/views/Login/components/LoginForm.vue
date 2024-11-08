@@ -49,6 +49,8 @@ class="input-class-round " v-model="loginData.loginForm.password"
           </div>
         </el-form-item>
       </el-col>
+      <div @click="goForget" class="w-full text-right text-[12px] mr-[14px] text-[#4D73CA] bold cursor-pointer">忘记密码
+      </div>
       <!-- <el-col
         :span="24"
         style="padding-right: 10px; padding-left: 10px; margin-top: -20px; margin-bottom: -20px"
@@ -73,6 +75,7 @@ class="input-class-round " v-model="loginData.loginForm.password"
             color="var(--login-button-color)" :round="true" @click="getCode()" />
         </el-form-item>
       </el-col>
+
       <Verify
 ref="verify" :captchaType="captchaType" :imgSize="{ width: '400px', height: '200px' }" mode="pop"
         @success="handleLogin" />
@@ -86,7 +89,7 @@ import LoginFormTitle from './LoginFormTitle.vue'
 import { defineProps } from 'vue';
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 const props = defineProps({
-  agreeCheck:{
+  agreeCheck: {
     type: Boolean,
     default: false
   }
@@ -142,10 +145,18 @@ const socialList = [
   { icon: 'ant-design:github-filled', type: 0 },
   { icon: 'ant-design:alipay-circle-filled', type: 0 }
 ]
+const goForget = () => {
+  const currentUrl = window.location.href;
 
+  // 将 "/login" 替换为 "/forget"
+  const newUrl = currentUrl.replace('/login', '/forget');
+
+  // 在新标签页中打开替换后的 URL
+  window.open(newUrl, '_blank');
+}
 // 获取验证码
 const getCode = async () => {
-  if(!props.agreeCheck){
+  if (!props.agreeCheck) {
     ElMessage.error(t('login.agreeUserAgreement'))
     return
   }
@@ -281,8 +292,6 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-
-
 :deep(.anticon) {
   &:hover {
     color: var(--el-color-primary) !important;
@@ -321,31 +330,34 @@ onMounted(() => {
 /* 自定义复选框颜色和圆角 */
 .custom-checkbox .el-checkbox__input {
   /* 如果需要改变选中时的背景色 */
-  border-color: #fff; /* 自定义颜色 */
-  border-radius: 10px; /* 圆角大小 */ 
+  border-color: #fff;
+  /* 自定义颜色 */
+  border-radius: 10px;
+  /* 圆角大小 */
 }
- 
+
 /* 自定义复选框为选中状态时的颜色 */
 .custom-checkbox .el-checkbox__input .el-checkbox__inner:hover {
   background-color: var(--login-button-color);
   border-color: var(--login-button-color);
 }
- 
+
 /* 自定义复选框为选中状态时的对勾颜色 */
 .custom-checkbox .el-checkbox__input .el-checkbox__inner::after {
   background-color: var(--login-button-color);
-  border-color: #fff; /* 对勾颜色 */
+  border-color: #fff;
+  /* 对勾颜色 */
 }
 
-.custom-checkbox .el-checkbox__input .el-checkbox__inner{
+.custom-checkbox .el-checkbox__input .el-checkbox__inner {
   background-color: #fff;
   border: 1px solid;
   border-radius: 100%;
 }
 
-.el-checkbox__input.is-checked .el-checkbox__inner{
+.el-checkbox__input.is-checked .el-checkbox__inner {
   background-color: var(--login-button-color);
-  border-color:  var(--login-button-color);
+  border-color: var(--login-button-color);
 }
 
 .deep-input {
