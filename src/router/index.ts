@@ -5,7 +5,7 @@ import remainingRouter from './modules/remaining'
 
 // 创建路由实例
 const router = createRouter({
-  history: createWebHistory(import.meta.env.VITE_BASE_PATH), // createWebHashHistory URL带#，createWebHistory URL不带#
+  history: createWebHistory(window.__MICRO_APP_BASE_ROUTE__ || import.meta.env.VITE_BASE_PATH), // createWebHashHistory URL带#，createWebHistory URL不带#
   strict: true,
   routes: remainingRouter as RouteRecordRaw[],
   scrollBehavior: () => ({ left: 0, top: 0 })

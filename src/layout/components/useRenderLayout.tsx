@@ -87,7 +87,7 @@ export const useRenderLayout = () => {
             <div
               class={[
                 {
-                  'fixed top-0 left-0 z-10': fixedHeader.value,
+                  'fixed top-[50px] left-0 z-10': fixedHeader.value,
                   'w-[calc(100%-var(--left-menu-min-width))] !left-[var(--left-menu-min-width)]':
                     collapse.value && fixedHeader.value && !mobile.value,
                   'w-[calc(100%-var(--left-menu-max-width))] !left-[var(--left-menu-max-width)]':

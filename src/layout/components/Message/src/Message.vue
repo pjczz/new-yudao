@@ -30,6 +30,15 @@ const goMyList = () => {
   })
 }
 
+const testMic = () => {
+  const baseRouter = (window as any).microApp.router.getBaseAppRouter()
+  baseRouter.push('/about')
+  // window.microApp.router.push({ name: 'Vben Admin Antd', path: 'http://192.168.1.120:5666/', replace: false })
+ 
+  // // 控制主应用跳转
+  // const location = window.rawWindow.location
+  // location.replace(location.origin + '/about')
+}
 // ========== 初始化 =========
 onMounted(() => {
   // 首次加载小红点
@@ -44,7 +53,7 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div class="message">
+  <div class="message" @click="testMic">
     <ElPopover :width="400" placement="bottom" trigger="click">
       <template #reference>
         <ElBadge :is-dot="unreadCount > 0" class="item">

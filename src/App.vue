@@ -4,6 +4,7 @@ import { useAppStore } from '@/store/modules/app'
 import { useDesign } from '@/hooks/web/useDesign'
 import { CACHE_KEY, useCache } from '@/hooks/web/useCache'
 import routerSearch from '@/components/RouterSearch/index.vue'
+import {encryptDataWithPublicKey} from '@/utils/useRSA'
 
 defineOptions({ name: 'APP' })
 
@@ -24,7 +25,7 @@ const setDefaultTheme = () => {
   appStore.setIsDark(isDarkTheme)
 }
 setDefaultTheme()
-
+console.log(encryptDataWithPublicKey({abs:'abs'}),'ams123')
 </script>
 <template>
   <ConfigGlobal :size="currentSize">
@@ -36,8 +37,8 @@ setDefaultTheme()
 $prefix-cls: #{$namespace}-app;
 
 .size {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: calc(100vh - 50px);
 }
 
 html,
@@ -55,5 +56,9 @@ body {
 
 .#{$prefix-cls}-grey-mode {
   filter: grayscale(100%);
+}
+
+#app{
+  position: relative;
 }
 </style>

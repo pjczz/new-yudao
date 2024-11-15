@@ -70,7 +70,6 @@ import { ThemeSwitch } from '@/layout/components/ThemeSwitch'
 import { LocaleDropdown } from '@/layout/components/LocaleDropdown'
 import router from '@/router'
 import { LoginForm, MobileForm, QrCodeForm, RegisterForm, SSOLoginVue } from './components'
-import { eventNames } from 'process'
 
 defineOptions({ name: 'Login' })
 const agreeCheck = ref(false)
