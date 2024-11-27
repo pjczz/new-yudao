@@ -87,12 +87,14 @@ export const useRenderLayout = () => {
             <div
               class={[
                 {
-                  'fixed top-[50px] left-0 z-10': fixedHeader.value,
+                  'fixed left-0 z-10': fixedHeader.value,
                   'w-[calc(100%-var(--left-menu-min-width))] !left-[var(--left-menu-min-width)]':
                     collapse.value && fixedHeader.value && !mobile.value,
                   'w-[calc(100%-var(--left-menu-max-width))] !left-[var(--left-menu-max-width)]':
                     !collapse.value && fixedHeader.value && !mobile.value,
-                  '!w-full !left-0': mobile.value
+                  '!w-full !left-0': mobile.value,
+                  'top-[50px]': window.__MICRO_APP_ENVIRONMENT__,
+                  'top-0': !window.__MICRO_APP_ENVIRONMENT__,
                 }
               ]}
               style="transition: all var(--transition-time-02);"

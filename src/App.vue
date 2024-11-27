@@ -4,7 +4,9 @@ import { useAppStore } from '@/store/modules/app'
 import { useDesign } from '@/hooks/web/useDesign'
 import { CACHE_KEY, useCache } from '@/hooks/web/useCache'
 import routerSearch from '@/components/RouterSearch/index.vue'
-import {encryptDataWithPublicKey} from '@/utils/useRSA'
+import { encryptDataWithPublicKey } from '@/utils/useRSA'
+import { getRouterInfo } from '@/utils/micro'
+import { onMounted } from 'vue'
 
 defineOptions({ name: 'APP' })
 
@@ -15,7 +17,6 @@ const currentSize = computed(() => appStore.getCurrentSize)
 const greyMode = computed(() => appStore.getGreyMode)
 const { wsCache } = useCache()
 
-
 // 根据浏览器当前主题设置系统主题色
 const setDefaultTheme = () => {
   let isDarkTheme = wsCache.get(CACHE_KEY.IS_DARK)
@@ -25,7 +26,16 @@ const setDefaultTheme = () => {
   appStore.setIsDark(isDarkTheme)
 }
 setDefaultTheme()
-console.log(encryptDataWithPublicKey({abs:'abs'}),'ams123')
+console.log(encryptDataWithPublicKey({ abs: 'abs' }), 'ams123')
+onMounted(() => {
+  // 判断是否为子应用 是就修改高度
+if (window.__MICRO_APP_ENVIRONMENT__) {
+	const appElement = document.querySelector('#app')
+	if (appElement) {
+		appElement.style.height = 'calc(100vh - 50px)'
+	}
+}
+})
 </script>
 <template>
   <ConfigGlobal :size="currentSize">
@@ -38,7 +48,7 @@ $prefix-cls: #{$namespace}-app;
 
 .size {
   width: 100%;
-  height: calc(100vh - 50px);
+  height: 100%;
 }
 
 html,
@@ -58,7 +68,7 @@ body {
   filter: grayscale(100%);
 }
 
-#app{
+#app {
   position: relative;
 }
 </style>

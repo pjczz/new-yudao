@@ -14,6 +14,9 @@ declare global {
 
   type LocaleType = 'zh-CN' | 'en' | 'jp'
 
+  // global.d.ts 或其他声明文件
+
+
   declare type TimeoutHandle = ReturnType<typeof setTimeout>
   declare type IntervalHandle = ReturnType<typeof setInterval>
 
@@ -26,6 +29,11 @@ declare global {
 
   type AxiosResponseType = 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
 
+  interface Window {
+    // 标记 window 为 any 类型
+    [key: string]: any
+  }
+  
   interface AxiosConfig {
     params?: any
     data?: any
